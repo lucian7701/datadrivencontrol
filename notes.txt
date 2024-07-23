@@ -1,0 +1,51 @@
+Things necessary for MPC implementation
+
+Discretised Ad and Bd.
+reference states - turn this into Xref- for full horizon.
+reference input.
+uminus1
+
+x constraints
+u constraints
+Du constraints
+
+Objective function matrices:
+Qx, QxN, Qu, QDu
+
+initial state
+
+Prediction horizon
+Control horizon
+
+
+Implementation:
+Initialise controller
+
+Setup controller
+
+Simulate in closed loop.
+    Get the output
+    step the system
+    update the controller
+    solve
+    log the state and the control input (control input and state it leads to).
+
+
+
+
+
+
+Plan 23/07/2024
+
+9-11: GP-MPC
+
+11:15-1: DeePC
+
+1:30-3: GP-MPC or MPC clean up
+
+3:30-5: DeePC
+
+
+
+
+
