@@ -47,5 +47,49 @@ Plan 23/07/2024
 
 
 
+GP-MPC
+Recapped GP. Implemented GP for sine function. got the mu2 and Sigma2 for sine function, which you can then
+extract samples from.
+
+This has shown the 95% interval/ x number of standard deviations.
+Then we can also draw random samples from this to show what the functions may look like, here we have done 5
+(This too is done in the master's thesis)
+
+We have then also looked into modelling with noise in the sine function. We have shown how you add that noise to the
+GP.
+
+We have looked into the exponential quadratic and how there are different hyperparameters sigma and length l.
+Should look into optimisation of this- mentioned in melanie paper, but not explored - is explored in masters thesis.
+
+
+Now need to continue reading cautious MPC paper to continue.
+
+
+Plan
+
+    We have started writing up GPs, we have a structure and are filling it in. Taking a break, resume later or tomorrow.
+
+This afternoon:
+
+    For the report there are some things we know we are going to do.
+    These are the immediate aims.
+        Prior and posterior with sin wave. (5 data points)
+        Noise variance adjustment
+
+        Hyperparameter: on sin wave
+            signal variance
+            length adjustment
+
+    Continue actual implementation.
+    Continue the refactoring of the codebase.
+    Do the hyperparameter tuning part of GPs intro.
+
+    Then actually apply some of the gaussian process stuff to MPC.
+
+
+
+
+
+
 
 
