@@ -2,10 +2,8 @@ import numpy as np
 import scipy as sp
 from kernels import ExponentiatedQuadraticKernel
 
-
 default_squared_exponential = ExponentiatedQuadraticKernel()
 report_squared_exponential = ExponentiatedQuadraticKernel(sigma_f=0.5)
-
 
 
 def GP(X1, y1, X2, kernel_func):
@@ -49,6 +47,7 @@ def GP(X1, y1, X2, kernel_func, sigma_noise=0.0):
 
     # Compute posterior mean - mu 2|1
     mu2 = solved @ y1
+    
     # Compute posterior covariance - Sigma 2|1
     Sigma22 = kernel_func(X2, X2)
     Sigma2 = Sigma22 - (solved @ Sigma12)

@@ -136,5 +136,5 @@ def visualise_sin_posterior(kernel_func=default_squared_exponential):
 if __name__ == '__main__':
     # illustrate_covariance()
     # sampling_from_a_prior()
-    # visualise_sin_posterior()
+    visualise_sin_posterior()
     pass
