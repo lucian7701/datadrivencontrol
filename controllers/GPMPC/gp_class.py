@@ -12,9 +12,9 @@ import numpy as np
 import casadi as ca
 import matplotlib.pyplot as plt
 from matplotlib.font_manager import FontProperties
-from gp_functions import gp_exact_moment, gp_taylor_approx, gp, build_gp, build_TA_cov, get_mean_function
-from optimize import train_gp, train_gp_numpy
-from mpc_class import lqr
+from controllers.GPMPC.gp_functions import gp_exact_moment, gp_taylor_approx, gp, build_gp, build_TA_cov, get_mean_function
+from controllers.GPMPC.optimize import train_gp, train_gp_numpy
+from controllers.GPMPC.mpc_class import lqr
 
 class GP:
     def __init__(self, X, Y, mean_func="zero", gp_method="TA",

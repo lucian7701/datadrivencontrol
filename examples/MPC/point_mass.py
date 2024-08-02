@@ -1,8 +1,14 @@
+"""taken from https://github.com/forgi86/pyMPC/blob/master/examples/example_point_mass.py"""
+
+from sys import path
+path.append(r"./../../") 
+
 import numpy as np
 import scipy.sparse as sparse
 import time
 import matplotlib.pyplot as plt
-from MPC.mpc_copy import MPCController
+
+from controllers.MPC.mpc import MPCController
 from scipy.integrate import ode
 
 if __name__ == '__main__':
@@ -120,3 +126,4 @@ if __name__ == '__main__':
     plt.hist(tcalc * 1000)
     plt.grid(True)
 
+    # plt.show()

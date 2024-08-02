@@ -12,10 +12,9 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, Rectangle
 # from gp_mpc import Model, GP, MPC, plot_eig, lqr
 
-from model_class import Model
-from gp_class import GP
-from mpc_class import MPC, plot_eig, lqr
-
+from models.model_class import Model
+from controllers.GPMPC.gp_class import GP
+from controllers.GPMPC.mpc_class import MPC, plot_eig, lqr
 
 
 def ode(x, u, z, p):

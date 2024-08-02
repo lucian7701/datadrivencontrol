@@ -13,7 +13,7 @@ import pyDOE
 import numpy as np
 import casadi as ca
 from scipy.spatial import distance
-from gp_functions import get_mean_function, gp, gp_exact_moment
+from controllers.GPMPC.gp_functions import get_mean_function, gp, gp_exact_moment
 from scipy.optimize import minimize
 
 # -----------------------------------------------------------------------------

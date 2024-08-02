@@ -8,9 +8,9 @@ from __future__ import print_function
 
 import numpy as np
 import casadi as ca
-from model_class import Model
-from gp_class import GP
-from mpc_class import MPC
+from models.model_class import Model
+from controllers.GPMPC.gp_class import GP
+from controllers.GPMPC.mpc_class import MPC
 
 def ode(x, u, z, p):
     # Double integrator dynamics

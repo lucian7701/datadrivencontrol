@@ -1,3 +1,5 @@
+"""This implements linear constrained MPC. Code taken from: https://github.com/forgi86/pyMPC/blob/master/pyMPC/mpc.py"""
+
 import numpy as np
 import scipy as sp
 import scipy.sparse as sparse
@@ -25,9 +27,10 @@ def __is_matrix__(mat):
 
 
 class MPCController:
-    """
+    """ This class implements a linear constrained MPC controller
 
     Attributes
+    ----------
     Ad : 2D array_like. Size: (nx, nx)
          Discrete-time system matrix Ad.
     Bd : 2D array-like. Size: (nx, nu)
@@ -38,6 +41,8 @@ class MPCController:
         Control horizon. It must be lower or equal to Np. If None, it is set equal to Np.
     x0 : 1D array_like. Size: (nx,)
          System state at time instant 0. If None, it is set to np.zeros(nx)
+    xref : 1D array-like. Size: (nx,) or (Np, nx)
+           System state reference (aka target, set-point). If size is (Np, nx), reference is time-dependent.
     uref : 1D array-like. Size: (nu, )
            System input reference. If None, it is set to np.zeros(nx)
     uminus1 : 1D array_like
@@ -76,29 +81,23 @@ class MPCController:
                  xmin=None, xmax=None, umin=None, umax=None, Dumin=None, Dumax=None,
                  eps_feas=1e6, eps_rel=1e-3, eps_abs=1e-3):
 
-        # Checks
-
-        # State matrix checks
         if __is_matrix__(Ad) and (Ad.shape[0] == Ad.shape[1]):
             self.Ad = Ad
             self.nx = Ad.shape[0]  # number of states
         else:
             raise ValueError("Ad should be a square matrix of dimension (nx,nx)!")
 
-        # Control matrix check
         if __is_matrix__(Bd) and Bd.shape[0] == self.nx:
             self.Bd = Bd
             self.nu = Bd.shape[1]  # number of inputs
         else:
             raise ValueError("Bd should be a matrix of dimension (nx, nu)!")
 
-        # Prediction horizon check
         if Np > 1:
             self.Np = Np  # assert
         else:
             raise ValueError("Np should be > 1!")
 
-        # Control horizon check
         if Nc is not None:
             if Nc <= Np:
                 self.Nc = Nc
@@ -107,7 +106,7 @@ class MPCController:
         else:
             self.Nc = self.Np
 
-        # x0 check
+        # x0 handling
         if x0 is not None:
             if __is_vector__(x0) and x0.size == self.nx:
                 self.x0 = x0.ravel()
@@ -116,7 +115,7 @@ class MPCController:
         else:
             self.x0 = np.zeros(self.nx)
 
-        # state reference check
+        # reference handing
         if xref is not None:
             if __is_vector__(xref) and xref.size == self.nx:
                 self.xref = xref.ravel()
@@ -127,17 +126,14 @@ class MPCController:
         else:
             self.xref = np.zeros(self.nx)
 
-        # control reference check
         if uref is not None:
             if __is_vector__(uref) and uref.size == self.nu:
                 self.uref = uref.ravel()  # assert...
             else:
                 raise ValueError("uref should be a vector of shape (nu,)!")
         else:
-            # This will be the majority of the case - i.e. want to just keep control as low as possible
             self.uref = np.zeros(self.nu)
 
-        # u minus1/ previous input check
         if uminus1 is not None:
             if __is_vector__(uminus1) and uminus1.size == self.nu:
                 self.uminus1 = uminus1
@@ -146,9 +142,7 @@ class MPCController:
         else:
             self.uminus1 = self.uref
 
-        # Weights handling
-
-        # State cost check
+        # weights handling
         if Qx is not None:
             if __is_matrix__(Qx) and Qx.shape[0] == self.nx and Qx.shape[1] == self.nx:
                 self.Qx = Qx
@@ -157,7 +151,6 @@ class MPCController:
         else:
             self.Qx = np.zeros((self.nx, self.nx))  # sparse
 
-        # Terminal state cost check
         if QxN is not None:
             if __is_matrix__(QxN) and QxN.shape[0] == self.nx and Qx.shape[1] == self.nx:
                 self.QxN = QxN
@@ -166,7 +159,6 @@ class MPCController:
         else:
             self.QxN = self.Qx  # sparse
 
-        # Control cost check
         if Qu is not None:
             if __is_matrix__(Qu) and Qu.shape[0] == self.nu and Qu.shape[1] == self.nu:
                 self.Qu = Qu
@@ -175,7 +167,6 @@ class MPCController:
         else:
             self.Qu = np.zeros((self.nu, self.nu))
 
-        # Change of control cost check
         if QDu is not None:
             if __is_matrix__(QDu) and QDu.shape[0] == self.nu and QDu.shape[1] == self.nu:
                 self.QDu = QDu
@@ -184,9 +175,7 @@ class MPCController:
         else:
             self.QDu = np.zeros((self.nu, self.nu))
 
-        # Constraint handling
-
-        # xmin
+        # constraints handling
         if xmin is not None:
             if __is_vector__(xmin) and xmin.size == self.nx:
                 self.xmin = xmin.ravel()
@@ -195,7 +184,6 @@ class MPCController:
         else:
             self.xmin = -np.ones(self.nx) * np.inf
 
-        # xmax
         if xmax is not None:
             if __is_vector__(xmax) and xmax.size == self.nx:
                 self.xmax = xmax
@@ -204,7 +192,6 @@ class MPCController:
         else:
             self.xmax = np.ones(self.nx) * np.inf
 
-        # umin
         if umin is not None:
             if __is_vector__(umin) and umin.size == self.nu:
                 self.umin = umin
@@ -213,7 +200,6 @@ class MPCController:
         else:
             self.umin = -np.ones(self.nu) * np.inf
 
-        # umax
         if umax is not None:
             if __is_vector__(umax) and umax.size == self.nu:
                 self.umax = umax
@@ -222,7 +208,6 @@ class MPCController:
         else:
             self.umax = np.ones(self.nu) * np.inf
 
-        # Dumin
         if Dumin is not None:
             if __is_vector__(Dumin) and Dumin.size == self.nu:
                 self.Dumin = Dumin
@@ -231,7 +216,6 @@ class MPCController:
         else:
             self.Dumin = -np.ones(self.nu) * np.inf
 
-        # Dumax
         if Dumax is not None:
             if __is_vector__(Dumax) and Dumax.size == self.nu:
                 self.Dumax = Dumax
@@ -240,28 +224,26 @@ class MPCController:
         else:
             self.Dumax = np.ones(self.nu) * np.inf
 
-        # Scale the penalty for slack variables
         self.eps_feas = eps_feas
-        # Diagonal penalty matrix for slack variables
         self.Qeps = eps_feas * sparse.eye(self.nx)
 
-        self.eps_rel = eps_rel  # relative tolerance of QP solver
-        self.eps_abs = eps_abs  # absolute tolerance of QP solver
+        self.eps_rel = eps_rel
+        self.eps_abs = eps_abs
         self.u_failure = self.uref  # value provided when the MPC solver fails.
 
         # Hidden settings (for debug purpose)
         self.raise_error = False  # Raise an error when MPC optimization fails
         self.JX_ON = True  # Cost function terms in X active
         self.JU_ON = True  # Cost function terms in U active
-        self.JDU_ON = False  # Cost function terms in Delta U active
-        self.SOFT_ON = False  # Soft constraints active
+        self.JDU_ON = True  # Cost function terms in Delta U active
+        self.SOFT_ON = True  # Soft constraints active
         self.COMPUTE_J_CNST = False  # Compute the constant term of the MPC QP problem
 
         # QP problem instance
         self.prob = osqp.OSQP()
 
         # Variables initialized by the setup() method
-        self.res = None  # result
+        self.res = None
         self.P = None
         self.q = None
         self.A = None
@@ -272,17 +254,16 @@ class MPCController:
         self.J_CNST = None  # Constant term of the cost function
 
     def setup(self, solve=True):
-        """ Set up the QP problem.
+        """ Set-up the QP problem.
 
-            Parameters
-            ----------
-            solve : bool
-                   If True, also solve the QP problem.
+        Parameters
+        ----------
+        solve : bool
+               If True, also solve the QP problem.
 
         """
-
-        self.x0_rh = np.copy(self.x0)  # receding horizon initial state
-        self.uminus1_rh = np.copy(self.uminus1)  # previous input value
+        self.x0_rh = np.copy(self.x0)
+        self.uminus1_rh = np.copy(self.uminus1)
         self._compute_QP_matrices_()
         self.prob.setup(self.P, self.q, self.A, self.l, self.u, warm_start=True, verbose=False, eps_abs=self.eps_rel,
                         eps_rel=self.eps_abs)
@@ -290,192 +271,10 @@ class MPCController:
         if solve:
             self.solve()
 
-    def _compute_QP_matrices_(self):
-        Np = self.Np
-        Nc = self.Nc
-        nx = self.nx
-        nu = self.nu
-        Qx = self.Qx
-        QxN = self.QxN
-        Qu = self.Qu
-        QDu = self.QDu
-        xref = self.xref
-        uref = self.uref
-        uminus1 = self.uminus1
-        Ad = self.Ad
-        Bd = self.Bd
-        x0 = self.x0
-        xmin = self.xmin
-        xmax = self.xmax
-        umin = self.umin
-        umax = self.umax
-        Dumin = self.Dumin
-        Dumax = self.Dumax
-        Qeps = self.Qeps
-
-        # Cast MPC problem to a QP: x = (x(0),x(1),...,x(N),u(0),...,u(N-1))
-        # - quadratic objective
-
-        # STATE COST
-
-        # start by initialising a very large matrix for overall quadratic cost
-        P_X = sparse.csc_matrix(((Np + 1) * nx, (Np + 1) * nx))  # Quadratic terms
-
-        # initialise a matrix for overall linear cost
-        q_X = np.zeros((Np + 1) * nx)  # Linear terms
-
-        # Zero cost constant
-        self.J_CNST = 0.0  # constant terms
-
-        if self.JX_ON:
-            P_X += sparse.block_diag([sparse.kron(sparse.eye(Np), Qx),  # x0...x_N-1
-                                      QxN])  # xN
-            # P_X has all the state cost matrices for every time step in prediction horizon laid out
-
-            # if xref is a matrix of changing reference inputs
-            if xref.ndim == 2 and xref.shape[0] >= Np + 1:
-                q_X += (-xref.reshape(1, -1) @ (P_X)).ravel()
-
-                if self.COMPUTE_J_CNST:
-                    # This is not necessary as constant terms make no difference to the optimisation.
-                    self.J_CNST += -1 / 2 * q_X @ xref.ravel()
-            # if xref is a constant vector
-            else:
-                q_X += np.hstack([np.kron(np.ones(Np), -Qx.dot(xref)),  # x0... x_N-1
-                                  -QxN.dot(xref)])  # x_N
-                if self.COMPUTE_J_CNST:
-                    self.J_CNST += 1 / 2 * Np * (xref.dot(QxN.dot(xref))) + 1 / 2 * xref.dot(QxN.dot(xref))
-        else:
-            pass
-
-        # CONTROL COST
-
-        P_U = sparse.csc_matrix((Nc * nu, Nc * nu))
-        q_U = np.zeros(Nc * nu)
-
-        if self.JU_ON:
-            # Constant costs
-            self.J_CNST += 1 / 2 * Np * (uref.dot(Qu.dot(uref)))
-
-            iU = np.ones(Nc)
-            iU[Nc - 1] = (Np - Nc + 1)
-            P_U += sparse.kron(sparse.diags(iU), Qu)
-            q_U += np.kron(iU, -Qu.dot(uref))
-
-        # Filling P and q for J_DU
-        if self.JDU_ON:
-            self.J_CNST += 1 / 2 * uminus1.dot((QDu).dot(uminus1))
-            iDu = 2 * np.eye(Nc) - np.eye(Nc, k=1) - np.eye(Nc, k=-1)
-            iDu[Nc - 1, Nc - 1] = 1
-            P_U += sparse.kron(iDu, QDu)
-            q_U += np.hstack([-QDu.dot(uminus1),  # u0
-                              np.zeros((Nc - 1) * nu)])  # u1..uN-1
-        else:
-            pass
-
-        if self.SOFT_ON:
-            P_eps = sparse.kron(np.eye((Np + 1)), Qeps)
-            q_eps = np.zeros((Np + 1) * nx)
-
-        # LINEAR CONSTRAINTS
-
-        # Linear dynamics x_k+1 = Ax_k + Bu_k
-
-        Ax = sparse.kron(sparse.eye(Np + 1), -sparse.eye(nx)) + sparse.kron(sparse.eye(Np + 1, k=-1), Ad)
-        # 1st - block diagonal where each block is -I_nx
-        # 2nd - block matrix with Ad matrix on sub-diagonals
-        # both matrices same size.
-
-        iBu = sparse.vstack([sparse.csc_matrix((1, Nc)),
-                             sparse.eye(Nc)])
-        # Here, this stack a matrix of 0s of Nc columns, and identity matrix Nc x Nc
-        # Resulting shape is (Nc+1) x Nc
-
-        if self.Nc < self.Np:  # expand A matrix if Nc < Np
-            iBu = sparse.vstack([iBu,
-                                 sparse.hstack([sparse.csc_matrix((Np - Nc, Nc - 1)), np.ones((Np - Nc, 1))])
-                                 ])
-        Bu = sparse.kron(iBu, Bd)
-
-        n_eps = (Np + 1) * nx
-        Aeq_dyn = sparse.hstack([Ax, Bu])
-        if self.SOFT_ON:
-            Aeq_dyn = sparse.hstack(
-                [Aeq_dyn, sparse.csc_matrix((Aeq_dyn.shape[0], n_eps))])  # For soft constraints slack variables
-
-        leq_dyn = np.hstack([-x0, np.zeros(Np * nx)])
-        ueq_dyn = leq_dyn  # for equality constraints -> upper bound  = lower bound!
-
-        # Bounds on x
-
-        Aineq_x = sparse.hstack([sparse.eye((Np + 1) * nx), sparse.csc_matrix(((Np + 1) * nx, Nc * nu))])
-        # second part of this hstack represents the absence of constraints on the control inputs in this
-        # part of the constraints matrix
-        if self.SOFT_ON:
-            Aineq_x = sparse.hstack([Aineq_x, sparse.eye(n_eps)])  # For soft constraints slack variables
-        lineq_x = np.kron(np.ones(Np + 1), xmin)  # lower bound of inequalities, these are long 1d arrays (row)
-        uineq_x = np.kron(np.ones(Np + 1), xmax)  # upper bound of inequalities
-
-        # Bounds on u
-
-        Aineq_u = sparse.hstack([sparse.csc_matrix((Nc * nu, (Np + 1) * nx)), sparse.eye(Nc * nu)])
-        if self.SOFT_ON:
-            Aineq_u = sparse.hstack(
-                [Aineq_u, sparse.csc_matrix((Aineq_u.shape[0], n_eps))])  # For soft constraints slack variables
-        lineq_u = np.kron(np.ones(Nc), umin)  # lower bound of inequalities
-        uineq_u = np.kron(np.ones(Nc), umax)  # upper bound of inequalities
-
-        # Bounds on \Delta u
-        Aineq_du = sparse.vstack(
-            [sparse.hstack([np.zeros((nu, (Np + 1) * nx)), sparse.eye(nu), np.zeros((nu, (Nc - 1) * nu))]),
-             # for u0 - u-1
-             sparse.hstack([np.zeros((Nc * nu, (Np + 1) * nx)), -sparse.eye(Nc * nu) + sparse.eye(Nc * nu, k=1)])
-             # for uk - uk-1, k=1...Np
-             ]
-        )
-        if self.SOFT_ON:
-            Aineq_du = sparse.hstack([Aineq_du, sparse.csc_matrix((Aineq_du.shape[0], n_eps))])
-
-        uineq_du = np.kron(np.ones(Nc + 1), Dumax)  # np.ones((Nc+1) * nu)*Dumax
-        uineq_du[0:nu] += self.uminus1[0:nu]
-
-        lineq_du = np.kron(np.ones(Nc + 1), Dumin)  # np.ones((Nc+1) * nu)*Dumin
-        lineq_du[0:nu] += self.uminus1[0:nu]  # works for non-scalar u?
-
-        # OSQP constraints
-
-        A = sparse.vstack([Aeq_dyn, Aineq_x, Aineq_u, Aineq_du]).tocsc()
-        l = np.hstack([leq_dyn, lineq_x, lineq_u, lineq_du])
-        u = np.hstack([ueq_dyn, uineq_x, uineq_u, uineq_du])
-
-        # assign all
-        if self.SOFT_ON:
-            self.P = sparse.block_diag([P_X, P_U, P_eps], format='csc')
-            self.q = np.hstack([q_X, q_U, q_eps])
-        else:
-            self.P = sparse.block_diag([P_X, P_U], format='csc')
-            self.q = np.hstack([q_X, q_U])
-
-        self.A = A
-        self.l = l
-        self.u = u
-
-        self.P_X = P_X
-
-    def solve(self):
-        """ Solve the QP problem. """
-
-        self.res = self.prob.solve()
-
-        # Check solver status
-        if self.res.info.status != 'solved':
-            warnings.warn('OSQP did not solve the problem!')
-            if self.raise_error:
-                raise ValueError('OSQP did not solve the problem!')
-
     def output(self, return_x_seq=False, return_u_seq=False, return_eps_seq=False, return_status=False,
                return_obj_val=False):
         """ Return the MPC controller output uMPC, i.e., the first element of the optimal input sequence and assign is to self.uminus1_rh.
+
 
         Parameters
         ----------
@@ -497,7 +296,6 @@ class MPCController:
         dict
             A dictionary with additional infos. It is returned only if one of the input flags return_* is set to True
         """
-
         Nc = self.Nc
         Np = self.Np
         nx = self.nx
@@ -505,7 +303,7 @@ class MPCController:
 
         # Extract first control input to the plant
         if self.res.info.status == 'solved':
-            uMPC = self.res.x[(Np + 1) * nx:(Np + 1) * nx + nu]  # control inputs are immediately after the states.
+            uMPC = self.res.x[(Np + 1) * nx:(Np + 1) * nx + nu]
         else:
             uMPC = self.u_failure
 
@@ -564,11 +362,32 @@ class MPCController:
         if u is not None:
             self.uminus1_rh = u  # otherwise it is just the uMPC updated from the previous step() call
         if xref is not None:
-            self.xref = xref
+            self.xref = xref  # TODO: check that new reference is != old reference, do a minimal update of the QP matrices to improve speed
         self._update_QP_matrices_()
+        if solve:
+            self.solve()
+
+    def solve(self):
+        """ Solve the QP problem. """
+
+        self.res = self.prob.solve()
+
+        # Check solver status
+        if self.res.info.status != 'solved':
+            warnings.warn('OSQP did not solve the problem!')
+            if self.raise_error:
+                raise ValueError('OSQP did not solve the problem!')
+
+    def __controller_function__(self, x, u, xref=None):
+        """ This function is meant to be used for debug only.
+        """
+
+        self.update(x, u, xref=xref, solve=True)
+        uMPC = self.output()
+
+        return uMPC
 
     def _update_QP_matrices_(self):
-        # My understanding is this is all about finding A, l, u, P and q
         x0_rh = self.x0_rh
         uminus1_rh = self.uminus1_rh
         Np = self.Np
@@ -586,26 +405,24 @@ class MPCController:
         xref = self.xref
         P_X = self.P_X
 
-        # Update initial state constraint
-        self.l[:nx] = -x0_rh    # change that first equality constraint.
-        self.u[:nx] = -x0_rh    # ""
+        self.l[:nx] = -x0_rh
+        self.u[:nx] = -x0_rh
 
-        # update DU constraints
         self.l[
         (Np + 1) * nx + (Np + 1) * nx + (Nc) * nu:(Np + 1) * nx + (Np + 1) * nx + (Nc) * nu + nu] = Dumin + uminus1_rh[
                                                                                                             0:nu]  # update constraint on \Delta u0: Dumin <= u0 - u_{-1}
         self.u[
         (Np + 1) * nx + (Np + 1) * nx + (Nc) * nu:(Np + 1) * nx + (Np + 1) * nx + (Nc) * nu + nu] = Dumax + uminus1_rh[
-                                                                                                           0:nu]  # update constraint on \Delta u0: u0 - u_{-1} <= Dumax
+                                                                                                            0:nu]  # update constraint on \Delta u0: u0 - u_{-1} <= Dumax
 
-        # Update linear term q
-        q_X = np.zeros((Np + 1) * nx)
+        # Update the linear term q. This part could be further optimized in case of constant xref...
+        q_X = np.zeros((Np + 1) * nx)  # x_N
         self.J_CNST = 0.0
         if self.JX_ON:
             if xref.ndim == 2 and xref.shape[0] >= Np + 1:  # xref is a vector per time-instant! experimental feature
-                # for idx_ref in range(Np):
+                #for idx_ref in range(Np):
                 #    q_X[idx_ref * nx:(idx_ref + 1) * nx] += -Qx.dot(xref[idx_ref, :])
-                # q_X[Np * nx:(Np + 1) * nx] += -QxN.dot(xref[Np, :])
+                #q_X[Np * nx:(Np + 1) * nx] += -QxN.dot(xref[Np, :])
                 q_X += (-xref.reshape(1, -1) @ (
                     P_X)).ravel()  # way faster implementation of the same formula commented above
 
@@ -645,4 +462,268 @@ class MPCController:
 
         self.prob.update(l=self.l, u=self.u, q=self.q)
 
+    def _compute_QP_matrices_(self):
+        Np = self.Np
+        Nc = self.Nc
+        nx = self.nx
+        nu = self.nu
+        Qx = self.Qx
+        QxN = self.QxN
+        Qu = self.Qu
+        QDu = self.QDu
+        xref = self.xref
+        uref = self.uref
+        uminus1 = self.uminus1
+        Ad = self.Ad
+        Bd = self.Bd
+        x0 = self.x0
+        xmin = self.xmin
+        xmax = self.xmax
+        umin = self.umin
+        umax = self.umax
+        Dumin = self.Dumin
+        Dumax = self.Dumax
+        Qeps = self.Qeps
 
+        # Cast MPC problem to a QP: x = (x(0),x(1),...,x(N),u(0),...,u(N-1))
+        # - quadratic objective
+
+        P_X = sparse.csc_matrix(((Np + 1) * nx, (Np + 1) * nx))
+        q_X = np.zeros((Np + 1) * nx)  # x_N
+        self.J_CNST = 0.0
+        if self.JX_ON:
+            P_X += sparse.block_diag([sparse.kron(sparse.eye(Np), Qx),  # x0...x_N-1
+                                      QxN])  # xN
+
+            if xref.ndim == 2 and xref.shape[0] >= Np + 1:  # xref is a vector per time-instant! experimental feature
+                #for idx_ref in range(Np):
+                #    q_X[idx_ref * nx:(idx_ref + 1) * nx] += -Qx.dot(xref[idx_ref, :])
+                #q_X[Np * nx:(Np + 1) * nx] += -QxN.dot(xref[Np, :])
+                q_X += (-xref.reshape(1, -1) @ (P_X)).ravel()
+                if self.COMPUTE_J_CNST:
+                    self.J_CNST += -1 / 2 * q_X @ xref.ravel()
+            else:
+                q_X += np.hstack([np.kron(np.ones(Np), -Qx.dot(xref)),  # x0... x_N-1
+                                  -QxN.dot(xref)])  # x_N
+                if self.COMPUTE_J_CNST:
+                    self.J_CNST += 1 / 2 * Np * (xref.dot(QxN.dot(xref))) + 1 / 2 * xref.dot(QxN.dot(xref))
+        else:
+            pass
+
+        # Filling P and q for J_U
+        P_U = sparse.csc_matrix((Nc * nu, Nc * nu))
+        q_U = np.zeros(Nc * nu)
+        if self.JU_ON:
+            self.J_CNST += 1 / 2 * Np * (uref.dot(Qu.dot(uref)))
+
+            if self.Nc == self.Np:
+                P_U += sparse.kron(sparse.eye(Nc), Qu)
+                q_U += np.kron(np.ones(Nc), -Qu.dot(uref))
+            else:  # Nc < Np. This formula is more general and could handle the case Nc = Np either. TODO: test
+                iU = np.ones(Nc)
+                iU[Nc - 1] = (Np - Nc + 1)
+                P_U += sparse.kron(sparse.diags(iU), Qu)
+                q_U += np.kron(iU, -Qu.dot(uref))
+
+        # Filling P and q for J_DU
+        if self.JDU_ON:
+            self.J_CNST += 1 / 2 * uminus1.dot((QDu).dot(uminus1))
+            iDu = 2 * np.eye(Nc) - np.eye(Nc, k=1) - np.eye(Nc, k=-1)
+            iDu[Nc - 1, Nc - 1] = 1
+            P_U += sparse.kron(iDu, QDu)
+            q_U += np.hstack([-QDu.dot(uminus1),  # u0
+                              np.zeros((Nc - 1) * nu)])  # u1..uN-1
+        else:
+            pass
+
+        if self.SOFT_ON:
+            P_eps = sparse.kron(np.eye((Np + 1)), Qeps)
+            q_eps = np.zeros((Np + 1) * nx)
+
+        # Linear constraints
+
+        # - linear dynamics x_k+1 = Ax_k + Bu_k
+        Ax = sparse.kron(sparse.eye(Np + 1), -sparse.eye(nx)) + sparse.kron(sparse.eye(Np + 1, k=-1), Ad)
+        iBu = sparse.vstack([sparse.csc_matrix((1, Nc)),
+                             sparse.eye(Nc)])
+        if self.Nc < self.Np:  # expand A matrix if Nc < Np (see notes)
+            iBu = sparse.vstack([iBu,
+                                 sparse.hstack([sparse.csc_matrix((Np - Nc, Nc - 1)), np.ones((Np - Nc, 1))])
+                                 ])
+        Bu = sparse.kron(iBu, Bd)
+
+        n_eps = (Np + 1) * nx
+        Aeq_dyn = sparse.hstack([Ax, Bu])
+        if self.SOFT_ON:
+            Aeq_dyn = sparse.hstack(
+                [Aeq_dyn, sparse.csc_matrix((Aeq_dyn.shape[0], n_eps))])  # For soft constraints slack variables
+
+        leq_dyn = np.hstack([-x0, np.zeros(Np * nx)])
+        ueq_dyn = leq_dyn  # for equality constraints -> upper bound  = lower bound!
+
+        # - bounds on x
+        Aineq_x = sparse.hstack([sparse.eye((Np + 1) * nx), sparse.csc_matrix(((Np + 1) * nx, Nc * nu))])
+        if self.SOFT_ON:
+            Aineq_x = sparse.hstack([Aineq_x, sparse.eye(n_eps)])  # For soft constraints slack variables
+        lineq_x = np.kron(np.ones(Np + 1), xmin)  # lower bound of inequalities
+        uineq_x = np.kron(np.ones(Np + 1), xmax)  # upper bound of inequalities
+
+        Aineq_u = sparse.hstack([sparse.csc_matrix((Nc * nu, (Np + 1) * nx)), sparse.eye(Nc * nu)])
+        if self.SOFT_ON:
+            Aineq_u = sparse.hstack(
+                [Aineq_u, sparse.csc_matrix((Aineq_u.shape[0], n_eps))])  # For soft constraints slack variables
+        lineq_u = np.kron(np.ones(Nc), umin)  # lower bound of inequalities
+        uineq_u = np.kron(np.ones(Nc), umax)  # upper bound of inequalities
+
+        # - bounds on \Delta u
+        Aineq_du = sparse.vstack(
+            [sparse.hstack([np.zeros((nu, (Np + 1) * nx)), sparse.eye(nu), np.zeros((nu, (Nc - 1) * nu))]),
+             # for u0 - u-1
+             sparse.hstack([np.zeros((Nc * nu, (Np + 1) * nx)), -sparse.eye(Nc * nu) + sparse.eye(Nc * nu, k=1)])
+             # for uk - uk-1, k=1...Np
+             ]
+            )
+        if self.SOFT_ON:
+            Aineq_du = sparse.hstack([Aineq_du, sparse.csc_matrix((Aineq_du.shape[0], n_eps))])
+
+        uineq_du = np.kron(np.ones(Nc + 1), Dumax)  #np.ones((Nc+1) * nu)*Dumax
+        uineq_du[0:nu] += self.uminus1[0:nu]
+
+        lineq_du = np.kron(np.ones(Nc + 1), Dumin)  #np.ones((Nc+1) * nu)*Dumin
+        lineq_du[0:nu] += self.uminus1[0:nu]  # works for non-scalar u?
+
+        # Positivity of slack variables (not necessary!)
+        #Aineq_eps_pos = sparse.hstack([sparse.coo_matrix((n_eps,(Np+1)*nx)), sparse.coo_matrix((n_eps, Np*nu)), sparse.eye(n_eps)])
+        #lineq_eps_pos = np.zeros(n_eps)
+        #uineq_eps_pos = np.ones(n_eps)*np.inf
+
+        # - OSQP constraints
+        #A = sparse.vstack([Aeq_dyn, Aineq_x, Aineq_u, Aineq_du, Aineq_eps_pos]).tocsc()
+        #l = np.hstack([leq_dyn, lineq_x, lineq_u, lineq_du, lineq_eps_pos])
+        #u = np.hstack([ueq_dyn, uineq_x, uineq_u, uineq_du, uineq_eps_pos])
+
+        A = sparse.vstack([Aeq_dyn, Aineq_x, Aineq_u, Aineq_du]).tocsc()
+        l = np.hstack([leq_dyn, lineq_x, lineq_u, lineq_du])
+        u = np.hstack([ueq_dyn, uineq_x, uineq_u, uineq_du])
+
+        # assign all
+        if self.SOFT_ON:
+            self.P = sparse.block_diag([P_X, P_U, P_eps], format='csc')
+            self.q = np.hstack([q_X, q_U, q_eps])
+        else:
+            self.P = sparse.block_diag([P_X, P_U], format='csc')
+            self.q = np.hstack([q_X, q_U])
+
+        self.A = A
+        self.l = l
+        self.u = u
+
+        self.P_X = P_X
+        # Debug assignments
+
+
+#        self.P_U = P_U
+#        self.P_eps = P_eps
+#        self.Aineq_du = Aineq_du
+#        self.leq_dyn = leq_dyn
+#        self.lineq_du = lineq_du
+
+
+if __name__ == '__main__':
+    import time
+    import matplotlib.pyplot as plt
+
+    # Constants #
+    Ts = 0.2  # sampling time (s)
+    M = 2  # mass (Kg)
+    b = 0.3  # friction coefficient (N*s/m)
+
+    # Continuous-time system matrices
+    Ac = np.array([
+        [0.0, 1.0],
+        [0, -b / M]]
+    )
+    Bc = np.array([
+        [0.0],
+        [1 / M]
+    ])
+
+    [nx, nu] = Bc.shape  # number of states and number or inputs
+
+    # Forward euler discretization
+    Ad = np.eye(nx) + Ac * Ts
+    Bd = Bc * Ts
+
+    # Reference input and states
+    pref = 7.0
+    vref = 0.0
+    xref = np.array([pref, vref])  # reference state
+    uref = np.array([0.0])  # reference input
+    uminus1 = np.array([
+                           0.0])  # input at time step negative one - used to penalize the first delta u at time instant 0. Could be the same as uref.
+
+    # Constraints
+    xmin = np.array([-10, -10.0])
+    xmax = np.array([7.0, 10.0])
+
+    umin = np.array([-1.2])
+    umax = np.array([1.2])
+
+    Dumin = np.array([-2e-1])
+    Dumax = np.array([2e-1])
+
+    # Objective function
+    Qx = sparse.diags([0.5, 0.1])  # Quadratic cost for states x0, x1, ..., x_N-1
+    QxN = sparse.diags([0.5, 0.1])  # Quadratic cost for xN
+    Qu = 2.0 * sparse.eye(1)  # Quadratic cost for u0, u1, ...., u_N-1
+    QDu = 10.0 * sparse.eye(1)  # Quadratic cost for Du0, Du1, ...., Du_N-1
+
+    # Initial state
+    x0 = np.array([0.1, 0.2])  # initial state
+
+    # Prediction horizon
+    Np = 25
+    Nc = 10
+
+    Xref = np.kron(np.ones((Np + 1, 1)), xref)
+    K = MPCController(Ad, Bd, Np=Np, Nc=Nc, x0=x0, xref=Xref, uminus1=uminus1,
+                      Qx=Qx, QxN=QxN, Qu=Qu, QDu=QDu,
+                      xmin=xmin, xmax=xmax, umin=umin, umax=umax, Dumin=Dumin, Dumax=Dumax)
+    K.setup()
+
+    # Simulate in closed loop
+    [nx, nu] = Bd.shape  # number of states and number or inputs
+    len_sim = 40  # simulation length (s)
+    nsim = int(len_sim / Ts)  # simulation length(timesteps)
+    xsim = np.zeros((nsim, nx))
+    usim = np.zeros((nsim, nu))
+    tsim = np.arange(0, nsim) * Ts
+
+    time_start = time.time()
+    xstep = x0
+    for i in range(nsim):
+        uMPC, info = K.output(return_u_seq=True, return_x_seq=True, return_eps_seq=True, return_status=True)
+        xstep = Ad.dot(xstep) + Bd.dot(uMPC)  # system step
+        K.update(xstep, xref=Xref)  # update with measurement
+        K.solve()
+        xsim[i, :] = xstep
+        usim[i, :] = uMPC
+
+    time_sim = time.time() - time_start
+
+    fig, axes = plt.subplots(3, 1, figsize=(10, 10))
+    axes[0].plot(tsim, xsim[:, 0], "k", label='p')
+    axes[0].plot(tsim, xref[0] * np.ones(np.shape(tsim)), "r--", label="pref")
+    axes[0].set_title("Position (m)")
+
+    axes[1].plot(tsim, xsim[:, 1], label="v")
+    axes[1].plot(tsim, xref[1] * np.ones(np.shape(tsim)), "r--", label="vref")
+    axes[1].set_title("Velocity (m/s)")
+
+    axes[2].plot(tsim, usim[:, 0], label="u")
+    axes[2].plot(tsim, uref * np.ones(np.shape(tsim)), "r--", label="uref")
+    axes[2].set_title("Force (N)")
+
+    for ax in axes:
+        ax.grid(True)
+        ax.legend()
