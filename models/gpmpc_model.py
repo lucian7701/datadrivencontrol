@@ -290,7 +290,7 @@ class Model:
                 Y[t, :] += np.random.multivariate_normal(
                                     np.zeros((self.__Nx)), self.__R)
 
-            # Limit values to above 1e-8 to avvoid to avvoid numerical errors
+            # Limit values to above 1e-8 to avvoid to avoid numerical errors
             if self.__clip_negative:
                 if np.any(Y < 0):
                     print('Clipping negative values in simulation!')
@@ -299,7 +299,7 @@ class Model:
 
 
     def generate_training_data(self, N, uub, ulb, xub, xlb,
-                               pub=None, plb=None, noise=True):
+                               pub=None, plb=None, noise=True, deepc=False):
         """ Generate training data using latin hypercube design
 
         # Arguments:
@@ -367,12 +367,16 @@ class Model:
                 Y[i, :] += np.random.multivariate_normal(
                                 np.zeros((self.__Nx)), self.__R)
 
+        if deepc:
+            return U, Y
+        
         # Concatenate previous states and inputs to obtain overall input to GP model
         if self.__Nu > 0:
             Z = np.hstack([X, U])
         else:
             Z = X
         return Z, Y
+
 
 
     def plot(self, x0, u, numcols=2):

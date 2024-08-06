@@ -11,7 +11,7 @@ path.append(r"./../../")
 
 import numpy as np
 import casadi as ca
-from models.model_class import Model
+from models.gpmpc_model import Model
 from controllers.GPMPC.gp_class import GP
 from controllers.GPMPC.mpc_class import MPC
 

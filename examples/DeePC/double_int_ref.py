@@ -16,6 +16,14 @@ class DoubleIntegrator:
             [1]
         ])
 
+
+        # A = np.array([[0, 1],
+        #       [0, 0]])
+        # B = np.array([[0],
+        #             [1]])
+        # C = np.array([[1, 0]])
+        # D = np.array([[0]])
+
         # Discretized system matrices using series expansion
         I = np.eye(self.A.shape[0])
         self.Ad = I + self.A*dt + (self.A @ self.A)*(dt**2)/2
@@ -55,10 +63,16 @@ class DoubleIntegrator:
         return trajectory
     
 
-    # Generate reference trajectory
-    def generate_reference_trajectory(self, start, end, steps):
-        positions = np.linspace(start, end, steps)
-        velocities = np.zeros(steps)
+    # # Generate reference trajectory
+    # def generate_reference_trajectory(self, start, end, steps):
+    #     positions = np.linspace(start, end, steps)
+    #     velocities = np.zeros(steps)
+    #     reference_trajectory = np.vstack((positions, velocities)).T
+    #     return reference_trajectory
+    
+    def generate_reference_trajectory(self, steps):
+        positions = np.ones(steps)  # All positions set to 1
+        velocities = np.zeros(steps)  # All velocities set to 0
         reference_trajectory = np.vstack((positions, velocities)).T
         return reference_trajectory
 

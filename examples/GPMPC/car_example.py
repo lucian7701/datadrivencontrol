@@ -12,7 +12,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Ellipse, Rectangle
 # from gp_mpc import Model, GP, MPC, plot_eig, lqr
 
-from models.model_class import Model
+from models.gpmpc_model import Model
 from controllers.GPMPC.gp_class import GP
 from controllers.GPMPC.mpc_class import MPC, plot_eig, lqr
 

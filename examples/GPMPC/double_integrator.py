@@ -8,7 +8,7 @@ from __future__ import print_function
 
 import numpy as np
 import casadi as ca
-from models.model_class import Model
+from models.gpmpc_model import Model
 from controllers.GPMPC.gp_class import GP
 from controllers.GPMPC.mpc_class import MPC
 
@@ -42,9 +42,9 @@ X_test, Y_test = model.generate_training_data(N_test, uub, ulb, xub, xlb, noise=
 
 """ Create GP model and optimize hyper-parameters on training data """
 gp = GP(X, Y, mean_func='zero', normalize=True, xlb=xlb, xub=xub, ulb=ulb, uub=uub)
-gp.save_model('models/gp_double_integrator')
-gp.validate(X_test, Y_test)
-gp.print_hyper_parameters()
+# gp.save_model('models/gp_double_integrator')
+# gp.validate(X_test, Y_test)
+# gp.print_hyper_parameters()
 
 """ Limits in the MPC problem """
 ulb = [-1.]
