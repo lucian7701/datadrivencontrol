@@ -1,7 +1,17 @@
+"""https://github.com/rssalessio/PyDeePC/blob/main/README.md"""
+
 import numpy as np
 from scipy import signal as scipysig
-from typing import Optional
-from controllers.DeePC2.deepc import Data
+from typing import Optional, NamedTuple
+
+class Data(NamedTuple):
+    """
+    Tuple that contains input/output data
+    :param u: input data
+    :param y: output data
+    """
+    u: np.ndarray
+    y: np.ndarray
 
 class System(object):
     """
@@ -17,9 +27,8 @@ class System(object):
         self.x0 = x0 if x0 is not None else np.zeros(sys.A.shape[0])
         self.u = None
         self.y = None
+        self.x = x0
 
-        print("sys B", self.sys.B)
-        print("sys A", self.sys.A)
 
     def apply_input(self, u: np.ndarray, noise_std: float = 0.5) -> Data:
         """
@@ -39,9 +48,11 @@ class System(object):
             self.x0 = self.sys.A @ self.x0.flatten() + self.sys.B @ u.flatten()
 
         y = y + noise_std * np.random.normal(size = T).reshape(T, 1)
+        
 
         self.u = np.vstack([self.u, u]) if self.u is not None else u
         self.y = np.vstack([self.y, y]) if self.y is not None else y
+        self.x = np.vstack([self.x, self.x0]) if self.x is not None else self.x0
         return Data(u, y)
 
     def get_last_n_samples(self, n: int) -> Data:
@@ -57,7 +68,7 @@ class System(object):
         Returns all samples
         """
         return Data(self.u, self.y)
-
+    
     def reset(self, data_ini: Optional[Data] = None, x0: Optional[np.ndarray] = None):
         """
         Reset initial state and collected data

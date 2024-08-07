@@ -41,7 +41,7 @@ class DeePC:
     """
 
     def __init__(self, ud: np.ndarray, yd: np.ndarray, y_constraints: Tuple[np.ndarray], u_constraints: Tuple[np.ndarray], 
-                 N: int, Tini: int) -> None:
+                 N: int, Tini: int, p: int, m: int) -> None:
        
         """
         Initialise variables
@@ -60,8 +60,8 @@ class DeePC:
         self.N = N
         # self.p = p
         # self.m = m
-        self.p = yd.shape[1]  # Output signal dimension
-        self.m = ud.shape[1]  # Input signal dimension
+        self.p = p  # Output signal dimension
+        self.m = m  # Input signal dimension
         self.y_lower = y_constraints[0]
         self.y_upper = y_constraints[1]
         self.u_lower= u_constraints[0]
@@ -301,6 +301,9 @@ class npDeePC:
 
         self.Q = np.kron(np.eye(self.N), Q)
         self.R = np.kron(np.eye(self.N), R)
+
+        print(self.y.shape)
+        print(self.y_ref.shape)
 
         self.cost = cp.quad_form(self.y - self.y_ref, cp.psd_wrap(self.Q)) + cp.quad_form(self.u, cp.psd_wrap(self.R))
 

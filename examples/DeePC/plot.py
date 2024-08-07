@@ -19,7 +19,7 @@ def plot_results(states, controls, T, title, with_limit_lines=False, with_video=
 
     else:
         plt.plot(time, states[:, 0], label='Position')
-        plt.plot(time, states[:, 1], label='Velocity')
+        # plt.plot(time, states[:, 1], label='Velocity')
         plt.ylabel('State')
 
     if with_limit_lines:
@@ -30,7 +30,7 @@ def plot_results(states, controls, T, title, with_limit_lines=False, with_video=
     plt.grid()
 
     plt.subplot(2, 1, 2)
-    plt.plot(time[:-1], controls, label='Control Input')
+    plt.plot(time, controls, label='Control Input')
     plt.ylabel('Control Input')
     plt.xlabel('Time (s)')
     plt.legend()
