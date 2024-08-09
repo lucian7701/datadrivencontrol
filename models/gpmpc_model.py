@@ -40,17 +40,18 @@ class Model:
         """
 
         # Create a default noise covariance matrix
-        if R is None:
-            self.__R = np.eye(self.__Ny) * 1e-3
-        else:
-            self.__R = R
-
+        
         self.__dt   = dt
         self.__Nu = Nu
         self.__Nx = Nx
         self.__Nz = Nz
         self.__Np = Np
         self.__clip_negative = clip_negative
+
+        if R is None:
+            self.__R = np.eye(self.__Nx) * 1e-3
+        else:
+            self.__R = R
 
         """ Create integrator """
         # Integrator options

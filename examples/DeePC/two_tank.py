@@ -1,8 +1,8 @@
 import numpy as np
 from Models.deepc_model import System
 from Controllers.DeePC.DeePCExecutor import DeePCExecutor
-
 import scipy.signal as scipysig
+
 
 # Define system parameters
 T = 70  # Length of trajectory
@@ -14,29 +14,28 @@ total_simulation_time = 10
 dt = 0.05  # Sampling time
 n_steps = int(total_simulation_time // dt)
 
-# Define system matrices
-A = np.array([[0, 1],
-              [0, 0]])
-B = np.array([[0],
-              [1]])
-C = np.array([[1, 0]])
-D = np.array([[0]])
 
-# Define constraints
-y_max = np.array([10])  # Constraints for [position, velocity]
-y_min = np.array([-10])
-u_max = np.array([1])  # Constraints for [acceleration]
-u_min = np.array([-1])
+# model of two-tank example
+A = np.array([
+        [0.70469, 0.     ],
+        [0.24664, 0.70469]])
+B = np.array([[0.75937], [0.12515]])
+C = np.array([[0., 1.]])
+D = np.zeros((C.shape[0], B.shape[1]))
 
-y_ref = np.ones((N, p))*3
+sys = System(scipysig.StateSpace(A, B, C, D, dt=0.05))
 
-
-# Create the system
-sys = System(scipysig.StateSpace(A, B, C, D).to_discrete(dt))
 
 # Define cost matrices
 Q = np.diag([10])
 R = np.diag([0.1])
+
+y_max = np.array([10])  # Constraints for [position, velocity]
+y_min = np.array([-10])
+u_max = np.array([2])  # Constraints for [acceleration]
+u_min = np.array([-2])
+
+y_ref = np.ones((N, p))*3
 
 
 # Create DeePC executor

@@ -6,14 +6,11 @@
 from __future__ import division
 from __future__ import print_function
 
-from sys import path
-path.append(r"./../../")
-
 import numpy as np
 import casadi as ca
-from models.gpmpc_model import Model
-from controllers.GPMPC.gp_class import GP
-from controllers.GPMPC.mpc_class import MPC
+from Models.gpmpc_model import Model
+from Controllers.GPMPC.gp_class import GP
+from Controllers.GPMPC.mpc_class import MPC
 
 
 def ode(x, u, z, p):
@@ -73,7 +70,7 @@ else:
     gp = GP.load_model('models/gp_tank_example')
 gp.validate(X_test, Y_test)
 gp.print_hyper_parameters()
-3
+
 """ Limits in the MPC problem """
 ulb = [10., 10.]
 uub = [60., 60.]

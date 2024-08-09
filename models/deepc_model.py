@@ -1,5 +1,8 @@
 """https://github.com/rssalessio/PyDeePC/blob/main/README.md"""
 
+# task is to extract an interface from this which implements the methods. - then work these methods using the GPMPC approach if possible. 
+
+
 import numpy as np
 from scipy import signal as scipysig
 from typing import Optional, NamedTuple
@@ -12,6 +15,20 @@ class Data(NamedTuple):
     """
     u: np.ndarray
     y: np.ndarray
+
+def cat_data(existing_data: Data, new_data: Data) -> Data:
+    """
+    Concatenate new input and output data to the existing Data object.
+
+    :param existing_data: The original Data object.
+    :param new_u: New input data to append.
+    :param new_y: New output data to append.
+    :return: A new Data object with concatenated input and output data.
+    """
+    updated_u = np.vstack([existing_data.u, new_data.u])
+    updated_y = np.vstack([existing_data.y, new_data.y])
+    
+    return Data(u=updated_u, y=updated_y)
 
 class System(object):
     """
@@ -49,7 +66,6 @@ class System(object):
 
         y = y + noise_std * np.random.normal(size = T).reshape(T, 1)
         
-
         self.u = np.vstack([self.u, u]) if self.u is not None else u
         self.y = np.vstack([self.y, y]) if self.y is not None else y
         self.x = np.vstack([self.x, self.x0]) if self.x is not None else self.x0
@@ -76,4 +92,3 @@ class System(object):
         self.u = None if data_ini is None else data_ini.u
         self.y = None if data_ini is None else data_ini.y
         self.x0 = x0 if x0 is not None else np.zeros(self.sys.A.shape[0])
-

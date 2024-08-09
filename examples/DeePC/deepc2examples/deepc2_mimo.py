@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 from typing import List
 from cvxpy.expressions.expression import Expression
 from cvxpy.constraints.constraint import Constraint
-from controllers.DeePC2.deepc import DeePC
-from controllers.DeePC2.utils import Data
-from models.deepc_model import System
+from Controllers.DeePC2.deepc import DeePC
+from Controllers.DeePC2.utils import Data
+from Models.deepc_model import System
 
 # Define the loss function for DeePC
 def loss_callback(u: cp.Variable, y: cp.Variable) -> Expression:
