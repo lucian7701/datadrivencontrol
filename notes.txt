@@ -99,3 +99,17 @@ Double integrator
 
 
 
+
+
+
+
+
+What does a gym environment need and consist of 
+
+
+reward range
+step function (which takes an action) - returns observation (next state), reward, done flag, info (duf), _ (duf)
+
+reset function. 
+
+

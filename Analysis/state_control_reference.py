@@ -13,9 +13,14 @@ def plot_results(states, controls, T, title, reference_trajectory=None, with_lim
     
     plt.subplot(2, 1, 1)
     plt.plot(time, states[:,0], label='Position 1')
-    plt.plot(time, states[:,1], label='Position 2')
-    plt.plot(time, states[:,2], label='Position 3')
-    plt.plot(time, states[:,3], label='Position 4')
+
+    if states.shape[1] > 1:
+        plt.plot(time, states[:,1], label='Position 2')
+    if states.shape[1] > 2:
+        plt.plot(time, states[:,2], label='Position 3')
+    if states.shape[1] > 3:
+        plt.plot(time, states[:,3], label='Position 4')
+        
     if reference_trajectory is not None:
         plt.plot(time, reference_trajectory, label='Reference Trajectory', linestyle='--')
     plt.ylabel('State')

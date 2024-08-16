@@ -8,9 +8,9 @@ from __future__ import print_function
 
 import numpy as np
 import casadi as ca
-from models.gpmpc_model import Model
-from controllers.GPMPC.gp_class import GP
-from controllers.GPMPC.mpc_class import MPC
+from Models.gpmpc_model import Model
+from Controllers.GPMPC.gp_class import GP
+from Controllers.GPMPC.mpc_class import MPC
 
 def ode(x, u, z, p):
     # Double integrator dynamics
@@ -32,7 +32,7 @@ uub = [1.]
 xlb = [-10., -10.]
 xub = [10., 10.]
 
-N = 60          # Number of training data
+N = 60       # Number of training data
 N_test = 100    # Number of test data
 
 """ Create Simulation Model """
@@ -53,8 +53,8 @@ xlb = [-10., -10.]
 xub = [10., 10.]
 
 """ Initial state, input and set point  """
-x_sp = np.array([0.0, 0.0]) # this is the reference value
-x0 = np.array([5.0, 0.0])
+x_sp = np.array([7.0, 7.0]) # this is the reference value
+x0 = np.array([0.0, 0.0])
 u0 = np.array([0.0])
 
 """ Penalty matrices """
@@ -78,7 +78,7 @@ mpc = MPC(horizon=30*dt, gp=gp, model=model,
           )
 
 """ Solve and plot the MPC solution, simulating 80 iterations """
-x, u = mpc.solve(x0, u0=u0, sim_time=80*dt, x_sp=x_sp, debug=False, noise=True)
+x, u = mpc.solve(x0, u0=u0, sim_time=200*dt, x_sp=x_sp, debug=False, noise=True)
 
 mpc.plot(xnames=['Position', 'Velocity'],
          unames=['Force'])
