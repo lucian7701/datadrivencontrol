@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.integrate import solve_ivp
-from Models.deepc_model import System
+from Models.deepc_model_l import System
 
 class CustomDoubleIntegratorEnv:
     def __init__(self, target_position=7.0, dt=0.02, control_penalty=0.01, position_penalty=1.0):

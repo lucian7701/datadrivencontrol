@@ -4,7 +4,7 @@
 
 import numpy as np
 from typing import Optional
-from Models.deepc_model import Data, cat_data
+from Models.deepc_model_l import Data
 from Models.gpmpc_model import Model
 from scipy.integrate import solve_ivp
 
@@ -15,7 +15,6 @@ class System(object):
     """
     def __init__(self, ode, m, Nx, dt, x0: Optional[np.ndarray] = None, Ny = None):
         """
-        :param sys: a linear system
         :param x0: initial state
         """
         self.Nx = Nx
@@ -78,7 +77,6 @@ class System(object):
 
                 # Generate random input within the bounds
                 u_random = np.random.uniform(low=u_min, high=u_max)
-                print(u_random)
 
                 # Simulate system for one step with current input
                 t_span = (0, self.dt)

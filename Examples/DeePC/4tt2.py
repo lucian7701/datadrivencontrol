@@ -1,16 +1,17 @@
-import casadi as ca
-from Models.deepc_model_nl import System
+
+from Models.deepc_nonlinear_system import NonLinearSystem
 import numpy as np
 from Controllers.DeePC.DeePCExecutor import DeePCExecutor
 
+
 # Define system parameters
-T = 500  # Length of trajectory
-N = 20  # Number of time steps
+T = 300  # Length of trajectory
+N = 30  # Number of time steps
 m = 2   # Input dimension
 p = 4   # Output dimension
 T_ini = 4 # Length of initial data
-total_simulation_time = 102
-dt = 3  # Sampling time
+total_simulation_time = 240
+dt = 3 # Sampling time
 n_steps = int(total_simulation_time // dt)
 
 
@@ -40,36 +41,48 @@ def ode(t, x, u):
 
     return dxdt
 
-x0 = np.array([8., 10., 8., 19.])
-
-
+x0 = np.array([8, 10, 8, 19])
 
 
 """ System parameters """
-dt = 3.0
 Nx = 4
 Nu = 2
 
-sys = System(ode=ode, m=Nu, Nx=Nx, dt=dt, x0=x0)
+sys = NonLinearSystem(x0, ode=ode, dt=dt, m=2)
 
 """ Limits in the training data """
-ulb = [0., 0.]
-uub = [60., 60.]
-xlb = [0, 0, 0, 0]
-xub = [30., 30., 30., 30.]
+ulb = np.array([10, 10])
+uub = np.array([60., 60.])
+xlb = np.array([7.5, 7.5, 3.5, 4.5])
+xub = np.array([22., 22., 22., 22.])
 
-Q = np.diag([20, 20, 10, 10])   # State penalty
-R = np.diag([1e-3, 1e-3])       # Input penalty
+Q = np.diag([10, 10, 1, 1])   # State penalty
+R = np.diag([0.001, 0.001])   # Input penalty
+
+x_ref = np.array([14.0, 14.0, 14.2, 21.3])
+
+# Repeat x_ref over the entire control horizon
+x_ref = np.tile(x_ref, (N, 1))
+
+
+# for linear approximation training data should be bounded.
+print("linear approx starts here")
+training_data = sys.generate_training_data(T=T, u_min=ulb, u_max=uub, x_min=xlb, x_max=xub)
+sys.reset(x0=x0)
+
+# get ini data first
+data_ini = sys.apply_input(u = np.tile(np.array([45, 45]), (T_ini, 1)))
+sys.reset(x0=x0)
 
 executor = DeePCExecutor(T=T, N=N, m=m, p=p, u_min=ulb, u_max=uub,
                          y_min=xlb, y_max=xub, T_ini=T_ini,
                          total_simulation_time=total_simulation_time,
-                         dt=dt, sys=sys, Q=Q, R=R)
+                         dt=dt, sys=sys, Q=Q, R=R, lam_g1=10, lam_g2=10, lam_y=1,
+                         y_ref=x_ref, data_ini=data_ini,
+                         training_data=training_data
+                         )
 
 executor.run()
 
 executor.plot()
-
-
-
 

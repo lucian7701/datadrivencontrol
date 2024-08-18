@@ -113,3 +113,12 @@ step function (which takes an action) - returns observation (next state), reward
 reset function. 
 
 
+
+Different types of noise:
+
+measurement noise
+stohastic system - where the wind takes you
+
+
+
+

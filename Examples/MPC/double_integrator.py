@@ -8,7 +8,7 @@ import scipy.sparse as sparse
 import time
 import matplotlib.pyplot as plt
 
-from controllers.MPC.mpc import MPCController
+from Controllers.MPC.mpc import MPCController
 from scipy.integrate import ode
 
 if __name__ == '__main__':
@@ -126,4 +126,4 @@ if __name__ == '__main__':
     plt.hist(tcalc * 1000)
     plt.grid(True)
 
-    # plt.show()
+    plt.show()

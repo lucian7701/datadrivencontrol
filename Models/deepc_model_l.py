@@ -16,20 +16,6 @@ class Data(NamedTuple):
     u: np.ndarray
     y: np.ndarray
 
-def cat_data(existing_data: Data, new_data: Data) -> Data:
-    """
-    Concatenate new input and output data to the existing Data object.
-
-    :param existing_data: The original Data object.
-    :param new_u: New input data to append.
-    :param new_y: New output data to append.
-    :return: A new Data object with concatenated input and output data.
-    """
-    updated_u = np.vstack([existing_data.u, new_data.u])
-    updated_y = np.vstack([existing_data.y, new_data.y])
-    
-    return Data(u=updated_u, y=updated_y)
-
 class System(object):
     """
     Represents a dynamical system that can be simulated
@@ -47,7 +33,7 @@ class System(object):
         self.x = x0
 
 
-    def apply_input(self, u: np.ndarray, noise_std: float = 0.5) -> Data:
+    def apply_input(self, u: np.ndarray, noise_std: float = 0) -> Data:
         """
         Applies an input signal to the system.
         :param u: input signal. Needs to be of shape T x M, where T is the batch size and
@@ -58,17 +44,18 @@ class System(object):
         T = len(u)
         if T > 1:
             # If u is a signal of length > 1 use dlsim for quicker computation
-            t, y, x0 = scipysig.dlsim(self.sys, u, t = np.arange(T) * self.sys.dt, x0 = self.x0)
-            self.x0 = x0[-1]
+            t, y, x = scipysig.dlsim(self.sys, u, t = np.arange(T) * self.sys.dt, x0 = self.x0)
+            self.x0 = x[-1]
         else:
             y = self.sys.C @ self.x0
+            x = self.x0
             self.x0 = self.sys.A @ self.x0.flatten() + self.sys.B @ u.flatten()
 
         y = y + noise_std * np.random.normal(size = T).reshape(T, 1)
         
         self.u = np.vstack([self.u, u]) if self.u is not None else u
         self.y = np.vstack([self.y, y]) if self.y is not None else y
-        self.x = np.vstack([self.x, self.x0]) if self.x is not None else self.x0
+        self.x = np.vstack([self.x, x]) if self.x is not None else self.x0
         return Data(u, y)
 
     def get_last_n_samples(self, n: int) -> Data:

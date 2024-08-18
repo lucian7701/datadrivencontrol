@@ -1,4 +1,4 @@
-from Models.deepc_model import Data
+from Models.deepc_model_l import Data
 
 from Controllers.DeePC.DeePC import DeePC
 import numpy as np
@@ -8,10 +8,10 @@ from Analysis.state_control_reference import plot_results
 class DeePCExecutor:
 
     def __init__(self, T: int, N: int, m: int, p: int, T_ini: int, total_simulation_time: int, 
-                 dt: float, sys, Q: np.array, R: np.array, lam_g1: float = None, lam_g2: float = None, lam_y: float = None,
+                 dt: float, sys, Q: np.array, R: np.array, training_data: Data, lam_g1: float = None, lam_g2: float = None, lam_y: float = None,
                  u_min: np.array = None, u_max: np.array = None,
                  y_min: np.array = None, y_max: np.array = None, 
-                 y_ref: np.array=None, u_ref: np.array=None, data_ini: Data=None, training_data: Data=None):
+                 y_ref: np.array=None, u_ref: np.array=None, data_ini: Data=None):
         """
         Initialize the DeePCExecutor class.
 
@@ -59,14 +59,7 @@ class DeePCExecutor:
 
         self.n_steps = int(total_simulation_time // dt)
 
-        if training_data is None:
-            # Generate training data
-            u_traj = np.random.uniform(u_min, u_max, (T, m))
-            self.training_data = sys.apply_input(u = u_traj, noise_std=0) # returns Data(u,y)
-
-        else:
-            self.training_data = training_data
-            print("training data is not none")
+        self.training_data = training_data
 
 
         # Extend the constraints over the prediction horizon using np.kron
@@ -107,14 +100,12 @@ class DeePCExecutor:
             new_u, _ = self.deepc.solve(self.y_ref, self.u_ref, u_ini, y_ini)
             new_u = new_u.reshape(-1, self.m)
 
-            self.sys.apply_input(new_u, noise_std=0)
+            self.sys.apply_input(new_u)
 
 
     def plot(self):
 
         data = self.sys.get_all_samples()
         states, controls = data.y, data.u
-        print("states", states)
-        print("controls", controls)
 
         plot_results(states, controls, self.total_simulation_time, title='DeePC Controller')

@@ -1,5 +1,5 @@
 from Models.deepc_model_nl import System
-from Models.deepc_model import Data
+from Models.deepc_model_l import Data
 import numpy as np
 from Controllers.DeePC.DeePCExecutor import DeePCExecutor
 
@@ -79,7 +79,7 @@ executor = DeePCExecutor(T=T, N=N, m=m, p=p, u_min=ulb, u_max=uub,
                          total_simulation_time=total_simulation_time,
                          dt=dt, sys=sys, Q=Q, R=R, lam_g1=10, lam_g2=10, lam_y=1,
                          y_ref=x_ref, data_ini=data_ini,
-                        #  training_data=training_data
+                         training_data=training_data
                          )
 
 executor.run()
