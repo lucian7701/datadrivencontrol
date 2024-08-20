@@ -30,6 +30,8 @@ class SystemBase(ABC):
         self.y = None
         self.x = None
         self.measurement_noise_std = measurement_noise_std
+        self.ref_store = None
+
 
     @abstractmethod
     def step(self, u: np.ndarray) -> Union[np.ndarray, np.ndarray]:
@@ -39,6 +41,12 @@ class SystemBase(ABC):
         """
         pass
 
+    @abstractmethod
+    def output_function(self, x: np.array) -> np.array:
+        """
+        Returns the output of the system given the state and the input
+        """
+        pass
 
     def apply_input(self, u: np.array) -> Data:
         """
@@ -67,23 +75,64 @@ class SystemBase(ABC):
 
         return Data(self.u, self.y)
         
-
-    def generate_training_data(self, T: int, u_min: np.ndarray, u_max: np.ndarray, x_min: np.ndarray=None, x_max: np.ndarray=None) -> Data:
+    def generate_training_data(self, T: int, u_min: np.ndarray, u_max: np.ndarray, y_min: np.ndarray=None, y_max: np.ndarray=None) -> Data:
         
         u_sequence = None
         y_sequence = None
 
         for t in range(T):
+            count = 0
             while True:
+                if count > 100:
+                    print("reset!")
+                    self.x0 = self.original_x0
                 # Generate random input within the bounds
                 u_random = np.random.uniform(low=u_min, high=u_max, size=(1, self.m))
+                save_x0 = self.x0
+
                 # Simulate system for one step with current input
                 y, x = self.step(u_random)
-
-                if (x_min is None or np.all(self.x0 >= x_min)) and (x_max is None or np.all(self.x0 <= x_max)):
+                
+                #Before we were saying all the values of x0 had to be greater than y_min and less than y_max
+                if (y_min is None or np.all(self.output_function(self.x0) >= y_min)) and (y_max is None or np.all(self.output_function(self.x0) <= y_max)):
                     break
+                
+                self.x0 = save_x0
+
+                # But we're not stepping back. 
+                count += 1
 
             u_sequence = np.vstack([u_sequence, u_random]) if u_sequence is not None else u_random
+            y_sequence = np.vstack([y_sequence, y]) if y_sequence is not None else y
+
+        return Data(u_sequence, y_sequence)
+    
+
+    def generate_training_data_cartpole(self, T: int, u_min: np.ndarray, u_max: np.ndarray, y_min: np.ndarray=None, y_max: np.ndarray=None) -> Data:
+        
+        u_sequence = None
+        y_sequence = None
+
+        # Continue until we have a sequence of length T
+        while u_sequence is None or u_sequence.shape[0] < T:
+            # Reset the state and sequences if necessary
+            if u_sequence is None or abs(self.x0[2]) > 0.9:
+                # attempt moasic hankel
+                print("reset!")
+                self.x0 = self.original_x0
+                u_sequence = None
+                y_sequence = None
+
+            # Compute the action
+            action = np.array([self.x0[0]*0.1 + self.x0[1]*0.1 + self.x0[2]*20 + self.x0[3]*0.1])
+            action = action - np.random.randn() * 0.1
+            action = np.array([action])  # Ensuring action has shape (1, 1)
+
+            # Perform a step in the environment/system
+            y, x = self.step(action)
+
+            # Stack the action and output into their respective sequences
+            u_sequence = np.vstack([u_sequence, action]) if u_sequence is not None else action
             y_sequence = np.vstack([y_sequence, y]) if y_sequence is not None else y
 
         return Data(u_sequence, y_sequence)
@@ -110,3 +159,10 @@ class SystemBase(ABC):
         self.u = None if data_ini is None else data_ini.u
         self.y = None if data_ini is None else data_ini.y
         self.x0 = self.original_x0 if x0 is None else x0
+
+    def store_ref(self, y_ref):
+        self.ref_store = np.vstack([self.ref_store, y_ref]) if self.ref_store is not None else y_ref
+
+    def get_ref(self):
+        return self.ref_store
+

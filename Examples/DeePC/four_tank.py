@@ -1,5 +1,4 @@
-from Models.deepc_model_nl import System
-from Models.deepc_model_l import Data
+from Models.deepc_nonlinear_system import NonLinearSystem
 import numpy as np
 from Controllers.DeePC.DeePCExecutor import DeePCExecutor
 
@@ -48,7 +47,7 @@ x0 = np.array([8, 10, 8, 19])
 Nx = 4
 Nu = 2
 
-sys = System(ode=ode, m=Nu, Nx=Nx, dt=dt, x0=x0)
+sys = NonLinearSystem(x0, ode=ode, dt=dt, m=2)
 
 """ Limits in the training data """
 ulb = np.array([10, 10])
@@ -56,8 +55,8 @@ uub = np.array([60., 60.])
 xlb = np.array([7.5, 7.5, 3.5, 4.5])
 xub = np.array([22., 22., 22., 22.])
 
-Q = np.diag([10, 10, 1, 1])   # State penalty
-R = np.diag([0.001, 0.001])       # Input penalty
+Q = np.diag([1, 1, 1, 1])   # State penalty
+R = np.diag([0.001, 0.001])   # Input penalty
 
 x_ref = np.array([14.0, 14.0, 14.2, 21.3])
 
@@ -65,10 +64,8 @@ x_ref = np.array([14.0, 14.0, 14.2, 21.3])
 x_ref = np.tile(x_ref, (N, 1))
 
 
-# for linear approximation training data should be bounded.
-print("linear approx starts here")
-training_data = sys.generate_bounded_data(T=T, u_min=ulb, u_max=uub, x_min=xlb, x_max=xub)
-
+training_data = sys.generate_training_data(T=T, u_min=ulb, u_max=uub, y_min=xlb, y_max=xub)
+sys.reset(x0=x0)
 
 # get ini data first
 data_ini = sys.apply_input(u = np.tile(np.array([45, 45]), (T_ini, 1)))
@@ -85,4 +82,3 @@ executor = DeePCExecutor(T=T, N=N, m=m, p=p, u_min=ulb, u_max=uub,
 executor.run()
 
 executor.plot()
-

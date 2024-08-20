@@ -22,13 +22,40 @@ def block_hankel(w: np.ndarray, L: int, d: int) -> np.ndarray:
     return H
 
 
+def mosaic_block_hankel(w: dict, L: int) -> np.array:
+    """
+    Builds block Hankel matrix of order L from data w from the mosaic blocks of w
+    Mosaic Hankel def given in Fig. 6 of https://imarkovs.github.io/tutorial.pdf
+    args:
+        w : a dictionary of T x d data matrices (lists of lists). T is the number of timesteps, d is the dimension of the signal
+          e.g., if there are 6 timesteps and 4 entries at each timestep, w is 6 x 4
+          a dictionary is used because the T for each episode can be different
+        L : order of hankel matrix
+    """
+    d = int(np.shape(w[0])[1]) # dimension of the signal
+    H = np.zeros((L*d, 0))
+
+    for k in w: #keys of the dictionary are integers that give the index of the episodes
+        T_k = int(np.shape(w[k])[0]) # number of timesteps
+        if L > T:
+            print(f'!!!!! WARNING: L {L} must be smaller than T {T_k}, not using episode {k} to build the mosaic Hankel matrix !!!!!')
+        else:
+            H_k = np.zeros((L*d, T-L+1))
+            w_k_vec = w[k].reshape(-1)
+            for i in range(0, T_k-L+1):
+                H_k[:,i] = w_k_vec[d*i:d*(L+i)]
+            H = np.hstack((H,H_k))
+
+    return H
+
+
 class DeePC:
 
     """
     Vanilla regularized DeePC module
     """
 
-    def __init__(self, ud: np.ndarray, yd: np.ndarray, y_constraints: Tuple[np.ndarray], u_constraints: Tuple[np.ndarray], 
+    def __init__(self, ud, yd, y_constraints: Tuple[np.ndarray], u_constraints: Tuple[np.ndarray], 
                  N: int, Tini: int, p: int, m: int) -> None:
        
         """
@@ -62,9 +89,17 @@ class DeePC:
         if rank != H.shape[0]:
             raise ValueError('Data is not persistently exciting')
         
-        # Construct data matrices
-        U = block_hankel(w=ud.reshape((self.m*self.T,)), L=Tini+N, d=self.m)
-        Y = block_hankel(w=yd.reshape((self.p*self.T,)), L=Tini+N, d=self.p)
+        if type(ud) is dict:
+            U= mosaic_block_hankel(w=ud, L=Tini+N)
+            Y= mosaic_block_hankel(w=yd, L=Tini+N)
+        else:
+            U = block_hankel(w=ud.reshape((self.m*self.T,)), L=Tini+N, d=self.m)
+            Y = block_hankel(w=yd.reshape((self.p*self.T,)), L=Tini+N, d=self.p)
+
+
+        # # Construct data matrices
+        # U = block_hankel(w=ud.reshape((self.m*self.T,)), L=Tini+N, d=self.m)
+        # Y = block_hankel(w=yd.reshape((self.p*self.T,)), L=Tini+N, d=self.p)
         self.Up = U[0:self.m*Tini,:]
         self.Yp = Y[0:self.p*Tini,:]
         self.Uf = U[Tini*self.m:,:]

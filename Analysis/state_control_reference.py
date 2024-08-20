@@ -6,23 +6,23 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_results(states, controls, T, title, reference_trajectory=None, with_limit_lines=False):
-    time = np.linspace(0, T, len(states))
+def plot_results(states, controls, total_simulation_time, title, reference_trajectory=None, T_ini=0):
+    
+    
+    time = np.linspace(0, total_simulation_time, len(states))
     plt.figure(figsize=(12, 8))
     plt.suptitle(title)
     
     plt.subplot(2, 1, 1)
-    plt.plot(time, states[:,0], label='Position 1')
 
-    if states.shape[1] > 1:
-        plt.plot(time, states[:,1], label='Position 2')
-    if states.shape[1] > 2:
-        plt.plot(time, states[:,2], label='Position 3')
-    if states.shape[1] > 3:
-        plt.plot(time, states[:,3], label='Position 4')
-        
+    for i in range(states.shape[1]):
+        plt.plot(time, states[:,i], label='State {}'.format(i+1))
+
     if reference_trajectory is not None:
-        plt.plot(time, reference_trajectory, label='Reference Trajectory', linestyle='--')
+        for i in range(reference_trajectory.shape[1]):
+            plt.plot(time[T_ini:], reference_trajectory[:,i], label='Reference Trajectory {}'.format(i+1), linestyle='--')
+
+    
     plt.ylabel('State')
     plt.xlabel('Time [s]')
     plt.legend()
@@ -36,4 +36,3 @@ def plot_results(states, controls, T, title, reference_trajectory=None, with_lim
     plt.grid()
     
     plt.show()
-

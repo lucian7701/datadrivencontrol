@@ -1,0 +1,2 @@
+
+We have the control inputs, the measured outputs, the states, the reference trajectory 

@@ -27,3 +27,6 @@ class LinearSystem(SystemBase):
             
         return y, x
         
+    def output_function(self, x: np.array) -> np.array:
+        return self.sys.C @ x
+    

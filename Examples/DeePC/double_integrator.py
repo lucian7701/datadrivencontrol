@@ -1,5 +1,5 @@
 import numpy as np
-from Models.deepc_model_l import System
+from Models.deepc_linear_system import LinearSystem
 from Controllers.DeePC.DeePCExecutor import DeePCExecutor
 
 import scipy.signal as scipysig
@@ -31,9 +31,14 @@ u_min = np.array([-2])
 y_ref = np.ones((N, p))*7
 
 
+
 # Create the system
 scipysystem = scipysig.StateSpace(A, B, C, D).to_discrete(dt)
-sys = System(scipysystem)
+
+x0 = np.array([0, 0])
+
+sys = LinearSystem(scipysystem, x0, m)
+
 
 
 # Define cost matrices
@@ -41,8 +46,9 @@ Q = np.diag([10])
 R = np.diag([0.1])
 
 
-u_traj = np.random.uniform(u_min, u_max, (T, m))
-training_data = sys.apply_input(u = u_traj, noise_std=0) # returns Data(u,y)
+training_data = sys.generate_training_data(T=T, u_min=u_min, u_max=u_max, y_min=y_min, y_max=y_max)
+
+sys.reset(x0=x0)
 
 # Create DeePC executor
 executor = DeePCExecutor(T=T, N=N, m=m, p=p, u_min=u_min, u_max=u_max,

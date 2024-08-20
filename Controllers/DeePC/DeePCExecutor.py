@@ -101,11 +101,12 @@ class DeePCExecutor:
             new_u = new_u.reshape(-1, self.m)
 
             self.sys.apply_input(new_u)
+            self.sys.store_ref(self.y_ref[:self.p].T)
 
 
     def plot(self):
 
         data = self.sys.get_all_samples()
         states, controls = data.y, data.u
-
-        plot_results(states, controls, self.total_simulation_time, title='DeePC Controller')
+        y_ref = self.sys.get_ref()
+        plot_results(states, controls, self.total_simulation_time+self.T_ini, title='DeePC Controller', reference_trajectory=y_ref, T_ini=self.T_ini)

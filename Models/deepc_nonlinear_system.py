@@ -7,7 +7,7 @@ class NonLinearSystem(SystemBase):
 
     def __init__(self, x0: np.array, ode, dt, m, output_function=None, measurement_noise_std=0):
         super().__init__(x0, m=m, measurement_noise_std=measurement_noise_std)
-        self.output_function = output_function
+        self.output_function_ = output_function if output_function is not None else lambda x: x
         self.ode = ode
         self.dt = dt
 
@@ -28,4 +28,7 @@ class NonLinearSystem(SystemBase):
             self.x0 = solution.y[:, -1]
 
         return np.array(y_list), np.array(x_list)
+    
+    def output_function(self, x: np.array) -> np.array:
+        return self.output_function_(x)
     
