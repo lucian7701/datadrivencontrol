@@ -1,7 +1,9 @@
+"""https://github.com/philtabor/Actor-Critic-Methods-Paper-To-Code/tree/master/DDPG"""
+
 import numpy as np
 
 class OUActionNoise():
-    def __init__(self, mu, sigma=0.7, theta=0.15, dt=0.02, x0=None):
+    def __init__(self, mu, sigma=0.5, theta=0.15, dt=0.02, x0=None):
         self.theta = theta
         self.mu = mu
         self.sigma = sigma
@@ -18,5 +20,4 @@ class OUActionNoise():
 
     def reset(self):
         self.x_prev = self.x0 if self.x0 is not None else np.zeros_like(self.mu)
-
 

@@ -58,8 +58,8 @@ sys = NonLinearSystem(x0, ode=ode, dt=dt, m=m)
 
 
 """ Limits in the training data """
-ulb = np.array([-10])
-uub = np.array([10])
+ulb = np.array([-2])
+uub = np.array([2])
 ylb = np.array([-2, -2, -0.9, -2])
 yub = np.array([2, 2, 0.9, 2])
 
@@ -75,7 +75,7 @@ y_ref = np.tile(y_ref, (N, 1))
 
 
 # need to add an output function here.
-training_data = sys.generate_training_data_cartpole(T=T, u_min=-4, u_max=4, y_min=None, y_max=None)
+training_data = sys.generate_training_data_cartpole(T=T, u_min=-2, u_max=2, y_min=None, y_max=None)
 sys.reset(x0=x0)
 
 

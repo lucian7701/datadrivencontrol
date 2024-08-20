@@ -1,4 +1,4 @@
-from Models.deepc_model_l import Data
+from Models.deepc_system import Data
 
 from Controllers.DeePC.DeePC import DeePC
 import numpy as np

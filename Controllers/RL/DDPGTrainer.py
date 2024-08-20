@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 class DDPGTrainer:
 
-    def __init__(self, env, input_dims=[4], n_actions=1):
+    def __init__(self, env, input_dims=[4], n_actions=1, load_checkpoint=False):
         """
         env: gym environment
         """
@@ -14,10 +14,15 @@ class DDPGTrainer:
                     input_dims=input_dims, tau=0.005,
                     batch_size=64, fc1_dims=400, fc2_dims=300, 
                     n_actions=n_actions)
-        self.n_games = 500
-        self.max_steps_per_episode = 500
+        
+
+        self.n_games = 2500
+        self.max_steps_per_episode = 1000
         self.best_score = self.env.reward_range[0]
         self.score_history = []
+
+        if load_checkpoint:
+            self.agent.load_models()
 
     
     def run(self):
@@ -45,3 +50,8 @@ class DDPGTrainer:
             if avg_score > self.best_score:
                 self.best_score = avg_score
                 self.agent.save_models()
+            
+            if (i+1) % 100 == 0:
+                np.save("episode_rewards/cartpole_e_r", np.array(self.score_history))
+
+        np.save("episode_rewards/cartpole_e_r", np.array(self.score_history))
