@@ -14,7 +14,7 @@ class DDPGTrainer:
                     input_dims=input_dims, tau=0.005,
                     batch_size=64, fc1_dims=400, fc2_dims=300, 
                     n_actions=n_actions)
-        self.n_games = 25
+        self.n_games = 500
         self.max_steps_per_episode = 500
         self.best_score = self.env.reward_range[0]
         self.score_history = []
