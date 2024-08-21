@@ -5,20 +5,20 @@ from Analysis.state_control_reference import plot_results
 
 class DDPGEvaluator:
 
-    def __init__(self, env, model_name, input_dims=[4], n_actions=1, total_simulation_time=40):
+    def __init__(self, env, model_name, input_dims=[4], n_actions=1, total_simulation_time=20, dt=0.02):
         self.env = env
         self.agent = Agent(alpha=0.0001, beta=0.001, 
                            input_dims=input_dims, tau=0.005,
                            batch_size=64, fc1_dims=400, fc2_dims=300, 
                            n_actions=n_actions, model_name=model_name)
         self.agent.load_models()  # Load trained models
-        dt = 0.02
+        self.dt = dt
         self.total_simulation_time = total_simulation_time
         self.max_steps_per_episode = total_simulation_time // dt
         self.u = None
         self.y = None
 
-    def run_eval(self):
+    def run_eval(self, state_labels=None, control_labels=None):
         observation, _ = self.env.reset()
         done = False
 
@@ -48,43 +48,4 @@ class DDPGEvaluator:
         print(step_num)
         rewards = np.array(rewards)
 
-        # Ensure visited_states is 2-dimensional before plotting
-        # if visited_states.ndim == 1:
-        #     visited_states = np.expand_dims(visited_states, axis=1)
-
-        plot_results(self.y, self.u, total_simulation_time=self.total_simulation_time, title='DDPG Evaluation')
-
-    
-    
-    
-    # def plot_results(self, states, actions, rewards):
-    #     plt.figure(figsize=(12, 8))
-
-    #     plt.subplot(3, 1, 1)
-    #     if states.shape[1] > 1:  # Check if states has more than one dimension
-    #         plt.plot(states[:, 0], label='Position')
-    #         plt.plot(states[:, 1], label='Velocity')
-    #     else:
-    #         plt.plot(states, label='State')
-
-    #     plt.title('State Variables Over Time')
-    #     plt.xlabel('Time Step')
-    #     plt.ylabel('State Values')
-    #     plt.legend()
-
-    #     plt.subplot(3, 1, 2)
-    #     plt.plot(actions, label='Control Input (Action)', color='g')
-    #     plt.title('Control Inputs Over Time')
-    #     plt.xlabel('Time Step')
-    #     plt.ylabel('Control Input')
-    #     plt.legend()
-
-    #     plt.subplot(3, 1, 3)
-    #     plt.plot(rewards, label='Reward', color='r')
-    #     plt.title('Rewards Over Time')
-    #     plt.xlabel('Time Step')
-    #     plt.ylabel('Reward')
-    #     plt.legend()
-
-    #     plt.tight_layout()
-    #     plt.show()
+        plot_results(self.y, self.u, dt=self.dt, state_labels=state_labels, control_labels=control_labels)
