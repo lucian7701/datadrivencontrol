@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 class DDPGTrainer:
 
-    def __init__(self, env, input_dims=[4], n_actions=1, load_checkpoint=False):
+    def __init__(self, env, model_name, input_dims=[4], n_actions=1, load_checkpoint=False):
         """
         env: gym environment
         """

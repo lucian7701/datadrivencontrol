@@ -6,11 +6,11 @@ from Models.rl_model_own_cartpole import CustomContinuousCartPoleEnv
 
 env = CustomContinuousCartPoleEnv()
 
-# ddpg_controller = DDPGTrainer(env, load_checkpoint=False)
+# ddpg_controller = DDPGTrainer(env, model_name="cartpole2", load_checkpoint=False)
 
 # ddpg_controller.run()
 
-ddpg_evaluator = DDPGEvaluator(env)
+ddpg_evaluator = DDPGEvaluator(env, model_name="cartpole")
 ddpg_evaluator.run_eval()
 
 

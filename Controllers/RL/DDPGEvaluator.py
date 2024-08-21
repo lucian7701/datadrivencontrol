@@ -5,12 +5,12 @@ from Analysis.state_control_reference import plot_results
 
 class DDPGEvaluator:
 
-    def __init__(self, env, input_dims=[4], n_actions=1, total_simulation_time=40):
+    def __init__(self, env, model_name, input_dims=[4], n_actions=1, total_simulation_time=40):
         self.env = env
         self.agent = Agent(alpha=0.0001, beta=0.001, 
                            input_dims=input_dims, tau=0.005,
                            batch_size=64, fc1_dims=400, fc2_dims=300, 
-                           n_actions=n_actions)
+                           n_actions=n_actions, model_name=model_name)
         self.agent.load_models()  # Load trained models
         dt = 0.02
         self.total_simulation_time = total_simulation_time
