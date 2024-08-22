@@ -35,7 +35,7 @@ def plot_rewards_cartpole():
 # train_cartpole()
 
 
-evaluate_cartpole()
+# evaluate_cartpole()
 
 
-# plot_rewards_cartpole()
+plot_rewards_cartpole()

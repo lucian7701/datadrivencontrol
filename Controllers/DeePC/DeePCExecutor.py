@@ -109,4 +109,4 @@ class DeePCExecutor:
         data = self.sys.get_all_samples()
         states, controls = data.y, data.u
         y_ref = self.sys.get_ref()
-        plot_results(states, controls, self.total_simulation_time+self.T_ini, title='DeePC Controller', reference_trajectory=y_ref, T_ini=self.T_ini)
+        plot_results(states, controls, self.total_simulation_time+self.T_ini, reference_trajectory=y_ref, T_ini=self.T_ini)

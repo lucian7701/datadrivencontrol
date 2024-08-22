@@ -83,7 +83,7 @@ class CriticNetwork(nn.Module):
 
 class ActorNetwork(nn.Module):
     def __init__(self, alpha, input_dims, fc1_dims, fc2_dims, n_actions, name, model_name, action_bound,
-                 chkpt_dir='tmp/ddpg'):
+                 chkpt_dir='tmp/ddpg', sigmoid=False):
         super(ActorNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -122,6 +122,8 @@ class ActorNetwork(nn.Module):
 
         self.to(self.device)
 
+        self.sigmoid = sigmoid
+
     def forward(self, state):
         x = self.fc1(state)
         x = self.bn1(x)
@@ -129,10 +131,15 @@ class ActorNetwork(nn.Module):
         x = self.fc2(x)
         x = self.bn2(x)
         x = F.relu(x)
-        x = T.tanh(self.mu(x))
+        
 
-        # Could add a scaled bound here?
-        x = T.multiply(x, self.action_bound)
+        if self.sigmoid:
+            x = T.sigmoid(self.mu(x))
+            x = T.multiply(x, self.action_bound)
+        else:
+            x = T.tanh(self.mu(x))
+            # Could add a scaled bound here?
+            x = T.multiply(x, self.action_bound)
 
         return x
 
@@ -141,7 +148,7 @@ class ActorNetwork(nn.Module):
         T.save(self.state_dict(), self.checkpoint_file)
 
     def load_checkpoint(self):
-        print('... loading checkpoint ...')
+        print('... loading checkpoint ... from', self.checkpoint_file)
         self.load_state_dict(T.load(self.checkpoint_file))
 
     def save_best(self):
