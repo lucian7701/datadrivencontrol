@@ -22,8 +22,8 @@ def plot_results(states, controls, dt, reference_trajectory=None, T_ini=0, state
         plt.plot(time, states[:,i], label=state_labels[i])
 
     if reference_trajectory is not None:
-        for i in range(reference_trajectory.shape[1]):
-            plt.plot(time[T_ini:], reference_trajectory[:,i], label='Reference Trajectory {}'.format(i+1), linestyle='--')
+        plt.plot(time[T_ini:], [reference_trajectory[0]] * len(time[T_ini:]), label='Reference Trajectory', linestyle='--')
+
 
     plt.ylabel('State')
     plt.legend()

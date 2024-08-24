@@ -49,4 +49,4 @@ class DDPGEvaluator:
         print(step_num)
         rewards = np.array(rewards)
 
-        plot_results(self.y, self.u, dt=self.dt, state_labels=state_labels, control_labels=control_labels)
+        plot_results(self.y, self.u, dt=self.dt, state_labels=state_labels, control_labels=control_labels, reference_trajectory=np.array(self.env.target_positions).reshape(1,-1))
