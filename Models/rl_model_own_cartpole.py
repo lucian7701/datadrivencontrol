@@ -15,6 +15,7 @@ class CustomContinuousCartPoleEnv:
         self.state = None
         self.steps_beyond_done = None
         self.reward_range = (0, 1)
+        self.target_positions = np.array([0, 0, 0, 0])
 
         self.reset()
     

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 class DDPGTrainer:
 
-    def __init__(self, env, model_name, input_dims=[4], n_actions=1, load_checkpoint=False, ngames=2500, max_steps_per_episode=1000, action_bound=2, sigmoid=False, sigma_noise=0.5):
+    def __init__(self, env, model_name, input_dims=[4], n_actions=1, load_checkpoint=False, ngames=2500, max_steps_per_episode=1000, action_bound=2, sigmoid=False, sigma_noise=0.5, chkpt_dir='tmp/ddpg'):
         """
         env: gym environment
         """
@@ -13,7 +13,7 @@ class DDPGTrainer:
         self.agent = Agent(alpha=0.0001, beta=0.001, 
                     input_dims=input_dims, tau=0.005,
                     batch_size=64, fc1_dims=400, fc2_dims=300, 
-                    n_actions=n_actions, model_name=model_name, action_bound=action_bound, sigmoid=sigmoid, sigma_noise=sigma_noise)
+                    n_actions=n_actions, model_name=model_name, action_bound=action_bound, sigmoid=sigmoid, sigma_noise=sigma_noise, chkpt_dir=chkpt_dir)
         
         self.model_name = model_name
         self.n_games = ngames

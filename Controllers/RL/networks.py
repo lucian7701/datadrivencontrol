@@ -9,7 +9,7 @@ import torch.optim as optim
 
 class CriticNetwork(nn.Module):
     def __init__(self, beta, input_dims, fc1_dims, fc2_dims, n_actions, name, model_name,
-                 chkpt_dir='tmp/ddpg'):
+                 chkpt_dir):
         super(CriticNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -17,7 +17,7 @@ class CriticNetwork(nn.Module):
         self.n_actions = n_actions
         self.name = name
         self.checkpoint_dir = chkpt_dir
-        self.checkpoint_file = os.path.join(self.checkpoint_dir, name+'_ddpg_'+model_name)
+        self.checkpoint_file = os.path.join(self.checkpoint_dir, name+"_"+model_name)
 
         self.fc1 = nn.Linear(*self.input_dims, self.fc1_dims)
         self.fc2 = nn.Linear(self.fc1_dims, self.fc2_dims)
@@ -83,7 +83,7 @@ class CriticNetwork(nn.Module):
 
 class ActorNetwork(nn.Module):
     def __init__(self, alpha, input_dims, fc1_dims, fc2_dims, n_actions, name, model_name, action_bound,
-                 chkpt_dir='tmp/ddpg', sigmoid=False):
+                 chkpt_dir, sigmoid=False):
         super(ActorNetwork, self).__init__()
         self.input_dims = input_dims
         self.fc1_dims = fc1_dims
@@ -91,7 +91,7 @@ class ActorNetwork(nn.Module):
         self.n_actions = n_actions
         self.name = name
         self.checkpoint_dir = chkpt_dir
-        self.checkpoint_file = os.path.join(self.checkpoint_dir, name+'_ddpg_'+model_name)
+        self.checkpoint_file = os.path.join(self.checkpoint_dir, name+"_"+model_name)
         self.action_bound = action_bound
 
         self.fc1 = nn.Linear(*self.input_dims, self.fc1_dims)

@@ -27,8 +27,8 @@ Nu = 1
 R = np.eye(Nx) * 1e-5 # Noise covariance
 
 """ Limits in the training data """
-ulb = [-1.]
-uub = [1.]
+ulb = [-2.]
+uub = [2.]
 xlb = [-10., -10.]
 xub = [10., 10.]
 

@@ -16,6 +16,7 @@ class CustomDoubleIntegratorFullEnv:
         self.reward_range = (-float('inf'), float('inf'))
 
         self.k = k
+        self.target_positions = np.array([7, 0])
 
 
     def dynamics(self, t, y, u):

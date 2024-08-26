@@ -39,6 +39,6 @@ def plot_rewards_double_integrator_full():
 
 # train_double_integrator_full()
 
-# evaluate_double_integrator_full()
+evaluate_double_integrator_full()
 
-plot_rewards_double_integrator_full()
+# plot_rewards_double_integrator_full()

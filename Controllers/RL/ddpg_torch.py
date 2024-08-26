@@ -11,7 +11,7 @@ from Controllers.RL.buffer import ReplayBuffer
 class Agent():
     def __init__(self, alpha, beta, input_dims, tau, n_actions, model_name, gamma=0.99,
                  max_size=1000000, fc1_dims=400, fc2_dims=300, 
-                 batch_size=100, action_bound=2, sigmoid=False, sigma_noise=0.5):
+                 batch_size=100, action_bound=2, sigmoid=False, sigma_noise=0.5, chkpt_dir='tmp/ddpg'):
         self.gamma = gamma
         self.tau = tau
         self.batch_size = batch_size
@@ -24,14 +24,14 @@ class Agent():
         self.noise = OUActionNoise(mu=np.zeros(n_actions), sigma=sigma_noise)
 
         self.actor = ActorNetwork(alpha, input_dims, fc1_dims, fc2_dims,
-                                n_actions=n_actions, name='actor', model_name=model_name, action_bound=self.action_bound, sigmoid=sigmoid)
+                                n_actions=n_actions, name='actor', model_name=model_name, action_bound=self.action_bound, chkpt_dir=chkpt_dir, sigmoid=sigmoid)
         self.critic = CriticNetwork(beta, input_dims, fc1_dims, fc2_dims,
-                                n_actions=n_actions, name='critic', model_name=model_name)
+                                n_actions=n_actions, name='critic', model_name=model_name, chkpt_dir=chkpt_dir)
         
         self.target_actor = ActorNetwork(alpha, input_dims, fc1_dims, fc2_dims,
-                                n_actions=n_actions, name='target_actor', model_name=model_name, action_bound=self.action_bound, sigmoid=sigmoid)
+                                n_actions=n_actions, name='target_actor', model_name=model_name, action_bound=self.action_bound, chkpt_dir=chkpt_dir, sigmoid=sigmoid)
         self.target_critic = CriticNetwork(beta, input_dims, fc1_dims, fc2_dims,
-                                n_actions=n_actions, name='target_critic', model_name=model_name)
+                                n_actions=n_actions, name='target_critic', model_name=model_name, chkpt_dir=chkpt_dir)
 
         self.update_network_parameters(tau=1)
 

@@ -14,6 +14,7 @@ class CustomDoubleIntegratorEnv:
         
         # Reward range (can be customized based on your design)
         self.reward_range = (-float('inf'), float('inf'))
+        self.target_positions = target_position
 
     def dynamics(self, t, y, u):
         # Double integrator dynamics: y'' = u
