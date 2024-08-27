@@ -3,7 +3,7 @@
 import numpy as np
 
 class OUActionNoise():
-    def __init__(self, mu, sigma=0.5, theta=0.15, dt=0.02, x0=None):
+    def __init__(self, mu, sigma=0.5, theta=0.15, dt=0.1, x0=None):
         self.theta = theta
         self.mu = mu
         self.sigma = sigma

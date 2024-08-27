@@ -47,8 +47,8 @@ gp = GP(X, Y, mean_func='zero', normalize=True, xlb=xlb, xub=xub, ulb=ulb, uub=u
 # gp.print_hyper_parameters()
 
 """ Limits in the MPC problem """
-ulb = [-1.]
-uub = [1.]
+ulb = [-2.]
+uub = [2.]
 xlb = [-10., -10.]
 xub = [10., 10.]
 
@@ -58,8 +58,8 @@ x0 = np.array([0.0, 0.0])
 u0 = np.array([0.0])
 
 """ Penalty matrices """
-Q = np.diag([1, 1])   # State penalty
-R = np.diag([1e-3])   # Input penalty
+Q = np.diag([10, 1])   # State penalty
+R = np.diag([0.1])   # Input penalty
 S = np.diag([0.01])   # Input change penalty
 
 """ Options to pass to the MPC solver """

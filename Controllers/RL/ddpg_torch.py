@@ -11,7 +11,7 @@ from Controllers.RL.buffer import ReplayBuffer
 class Agent():
     def __init__(self, alpha, beta, input_dims, tau, n_actions, model_name, gamma=0.99,
                  max_size=1000000, fc1_dims=400, fc2_dims=300, 
-                 batch_size=100, action_bound=2, sigmoid=False, sigma_noise=0.5, chkpt_dir='tmp/ddpg'):
+                 batch_size=100, action_bound=2, sigmoid=False, sigma_noise=0.5, chkpt_dir='tmp/ddpg', dt=0.1, theta_noise=0.15):
         self.gamma = gamma
         self.tau = tau
         self.batch_size = batch_size
@@ -21,7 +21,7 @@ class Agent():
 
         self.memory = ReplayBuffer(max_size, input_dims, n_actions)
 
-        self.noise = OUActionNoise(mu=np.zeros(n_actions), sigma=sigma_noise)
+        self.noise = OUActionNoise(mu=np.zeros(n_actions), sigma=sigma_noise, dt=dt, theta=theta_noise)
 
         self.actor = ActorNetwork(alpha, input_dims, fc1_dims, fc2_dims,
                                 n_actions=n_actions, name='actor', model_name=model_name, action_bound=self.action_bound, chkpt_dir=chkpt_dir, sigmoid=sigmoid)
@@ -47,6 +47,9 @@ class Agent():
         mu = self.actor.forward(state).to(self.actor.device)
         mu_prime = mu + T.tensor(self.noise(), 
                                     dtype=T.float).to(self.actor.device)
+        
+        action_bound = T.tensor(self.action_bound).to(self.actor.device)
+        mu_prime = T.clamp(mu_prime, -action_bound, action_bound)
         self.actor.train()
 
         action = mu_prime.cpu().detach().numpy()[0]
