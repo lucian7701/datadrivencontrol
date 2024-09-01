@@ -44,7 +44,7 @@ class CustomFourTankEnv:
         return dxdt
 
 
-    def step(self, action):
+    def step(self, action, eval=False):
         assert isinstance(action, np.ndarray) and action.shape == (2,), "Action must be a 2-element array."
 
         # Integrate the dynamics over the time step
@@ -70,9 +70,13 @@ class CustomFourTankEnv:
         # Ensure the reward is non-negative
         reward = max(reward, 0)
 
+        
         # Check if the episode is done (position error is too large)
         done = np.any(abs(position_error) > 7.0)
-        
+        if eval:
+            done = False
+
+
         return np.array(self.state, dtype=np.float32), reward, done, {}, {}
 
     def reset(self):
@@ -87,3 +91,4 @@ class CustomFourTankEnv:
         return np.array(self.state, dtype=np.float32), {}
         
         # x0 = np.array([8, 10, 8, 19]) 
+        

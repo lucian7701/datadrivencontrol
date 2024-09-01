@@ -8,7 +8,7 @@ class OUActionNoise():
         self.mu = mu
         self.sigma = sigma
         self.dt = dt
-        self.x0 = x0
+        self.x0 = x0 
         self.reset()
 
     def __call__(self):

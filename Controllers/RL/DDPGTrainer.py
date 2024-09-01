@@ -36,7 +36,7 @@ class DDPGTrainer:
     
     def run(self, eval: bool = False, total_simulation_time = 20):
 
-        overall_data_count = 0
+        overall_data_count = []
 
         for i in range(self.n_games):
             observation, _ = self.env.reset()
@@ -59,7 +59,7 @@ class DDPGTrainer:
             self.score_history.append(score)
             avg_score = np.mean(self.score_history[-100:])
 
-            overall_data_count += step_count
+            overall_data_count.append(step_count)
 
             print('episode ', i, 'score %.1f' % score,
                     'average score %.1f' % avg_score)
@@ -68,10 +68,9 @@ class DDPGTrainer:
                 self.best_score = avg_score
                 self.agent.save_models()
             
-            if (i+1) % 10 == 0:
+            if (i+1) % 100 == 0:
                 
-                with open(f"data_usage/{self.problem}_{self.model_name}.txt", "w") as f:
-                    f.write(f"{overall_data_count}")
+                np.save(f"data_usage/{self.problem}_{self.model_name}", np.array(overall_data_count))
                 
                 np.save(f"episode_rewards/{self.problem}_{self.model_name}_e_r", np.array(self.score_history))
 
@@ -86,6 +85,7 @@ class DDPGTrainer:
 
                         ddpg_evaluator = DDPGEvaluator(self.env, model_name=self.model_name, input_dims=self.input_dims, n_actions=self.n_actions, dt=self.dt, total_simulation_time=total_simulation_time, sigmoid=self.sigmoid, action_bound=self.action_bound, problem=self.problem)
                         total_absolute_error_by_state, total_absolute_control_by_input = ddpg_evaluator.run_eval(plot=False)
+
 
                         errors_by_state_list.append(total_absolute_error_by_state)
                         controls_by_input_list.append(total_absolute_control_by_input)
@@ -102,14 +102,16 @@ class DDPGTrainer:
 
                     average_error_by_state = np.mean(errors_by_state_array, axis=0)
                     std_dev_error_by_state = np.std(errors_by_state_array, axis=0)
-                    total_average_error = np.mean(total_errors_array)
-                    total_std_dev_error = np.std(total_errors_array)
+                    
+                    total_average_error = np.mean(total_errors_array, axis=0)
+                    total_std_dev_error = np.std(total_errors_array, axis=0)
 
 
                     average_control_by_input = np.mean(controls_by_input_array, axis=0)
                     std_dev_control_by_input = np.std(controls_by_input_array, axis=0)
-                    total_average_control = np.mean(total_controls_array)
-                    total_std_dev_control = np.std(total_controls_array)
+                    
+                    total_average_control = np.mean(total_controls_array, axis=0)
+                    total_std_dev_control = np.std(total_controls_array, axis=0)
 
                     combined_error_stats = np.concatenate((average_error_by_state, std_dev_error_by_state))
                     combined_control_stats = np.concatenate((average_control_by_input, std_dev_control_by_input))

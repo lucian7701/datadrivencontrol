@@ -21,7 +21,7 @@ class DDPGEvaluator:
         self.u = None
         self.y = None
 
-    def run_eval(self, state_labels=None, control_labels=None, plot: bool = True):
+    def run_eval(self, state_labels=None, control_labels=None, ref_labels=None, plot: bool = True):
         observation, _ = self.env.reset()
         done = False
 
@@ -34,7 +34,7 @@ class DDPGEvaluator:
             # check what type observation is
             self.y = np.vstack((self.y, observation)) if self.y is not None else observation
             
-            action = self.agent.choose_action(observation)
+            action = self.agent.choose_action_eval(observation)
 
             # check what type action is
             self.u = np.vstack((self.u, action)) if self.u is not None else action
@@ -57,7 +57,7 @@ class DDPGEvaluator:
         print("Total absolute error:", analyser.total_absolute_error())
         
         if plot:
-            analyser.plot_state_control(self.dt, state_labels, control_labels)
+            analyser.plot_state_control(self.dt, state_labels, control_labels, ref_labels)
         
 
         print("Number of steps:", step_num)

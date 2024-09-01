@@ -55,7 +55,7 @@ uub = np.array([60., 60.])
 xlb = np.array([7.5, 7.5, 3.5, 4.5])
 xub = np.array([22., 22., 22., 22.])
 
-Q = np.diag([1, 1, 1, 1])   # State penalty
+Q = np.diag([20, 20, 10, 10])   # State penalty
 R = np.diag([0.001, 0.001])   # Input penalty
 
 x_ref = np.array([14.0, 14.0, 14.2, 21.3])
@@ -82,3 +82,9 @@ executor = DeePCExecutor(T=T, N=N, m=m, p=p, u_min=ulb, u_max=uub,
 executor.run()
 
 executor.plot()
+
+state_labels = ['Tank 1 (m)', 'Tank 2 (m)', 'Tank 3 (m)', 'Tank 4 (m)']
+control_labels = ['Pump 1 (m^3/s)', 'Pump 2 (m^3/s)']
+ref_labels = ['Tank 1 ref (m)', 'Tank 2 ref (m)', 'Tank 3 ref (m)', 'Tank 4 ref (m)']
+
+executor.run_eval(state_labels=state_labels, control_labels=control_labels, ref_labels=ref_labels, plot=True)

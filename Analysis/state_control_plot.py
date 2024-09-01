@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_state_control_util(states, controls, dt, state_labels, control_labels, reference_trajectory=None, T_ini=0):
+def plot_state_control_util(states, controls, dt, state_labels, control_labels, reference_trajectory=None, T_ini=0, ref_labels=None):
     
     time = np.linspace(0, len(states)*dt, len(states))
     
@@ -20,8 +20,11 @@ def plot_state_control_util(states, controls, dt, state_labels, control_labels, 
     for i in range(states.shape[1]):
         plt.plot(time, states[:,i], label=state_labels[i])
 
+
+    if ref_labels is None:
+        ref_labels = ['Reference {}'.format(i+1) for i in range(reference_trajectory.shape[1])]
     if reference_trajectory is not None:
-        plt.plot(time[T_ini:], [reference_trajectory[0]] * len(time[T_ini:]), label='Reference Trajectory', linestyle='--')
+        plt.plot(time[T_ini:], [reference_trajectory[0]] * len(time[T_ini:]), label=ref_labels, linestyle='--')
 
 
     plt.ylabel('State')

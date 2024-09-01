@@ -6,7 +6,7 @@ import scipy.signal as scipysig
 
 # Define system parameters
 T = 70  # Length of trajectory
-N = 20  # Number of time steps
+N = 20  # Prediction horizon
 m = 1   # Input dimension
 p = 1   # Output dimension
 T_ini = 4 # Length of initial data
@@ -60,5 +60,12 @@ executor = DeePCExecutor(T=T, N=N, m=m, p=p, u_min=u_min, u_max=u_max,
 # Run the executor
 executor.run()
 
+
+state_labels = ['Position (m)']
+control_labels = ['Force (N)']
+ref_labels = ['Position ref (m)']
+
 # Plot the results
 executor.plot()
+
+executor.run_eval(state_labels=state_labels, control_labels=control_labels, ref_labels=ref_labels)

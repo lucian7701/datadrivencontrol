@@ -30,7 +30,7 @@ class CustomContinuousCartPoleEnv:
         
         return [x_dot, xacc, theta_dot, thetaacc]
     
-    def step(self, force):
+    def step(self, force, eval=False):
         assert isinstance(force, float), "Force must be a float."
         
         # Integrate the equations of motion
@@ -45,7 +45,9 @@ class CustomContinuousCartPoleEnv:
             or theta < -self.theta_threshold_radians
             or theta > self.theta_threshold_radians
         )
-
+        if eval:
+            done = False
+            
         if not done:
             reward = 1.0
         elif self.steps_beyond_done is None:

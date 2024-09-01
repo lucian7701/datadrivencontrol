@@ -22,21 +22,28 @@ def plot_average_errors_by_state(average_errors, std_errors, episode_number, sta
         avg = average_errors[:, state_index]
         std = std_errors[:, state_index]
 
+        # Clip the lower bound of the error bars at zero
+        lower_bound = np.clip(avg - std, 0, None)
+        upper_bound = avg + std
+
+        # Calculate the asymmetric error bars
+        error_bars = [avg - lower_bound, upper_bound - avg]
+
         # Generate a label for the state if state_labels are provided
         label = state_labels[state_index] if state_labels else f'State {state_index+1}'
 
         # Plot the error bar
-        plt.errorbar(episode_number, avg, yerr=std, label=label, capsize=5, marker='o', linestyle='--')
+        plt.errorbar(episode_number, avg, yerr=error_bars, label=label, capsize=5, marker='o', linestyle='--')
 
     # Adding plot details
-    plt.xlabel("Episode Number")
-    plt.ylabel("Error")
+    plt.xlabel("Episode number")
+    plt.ylabel("Average total error")
     plt.legend()
     plt.grid(True)
     plt.show()
 
 
-def plot_total_average_errors(total_average_errors, total_std_errors, episode_number):
+def plot_total_average_errors(total_average_errors, total_std_errors, episode_number, state_labels=None):
     """
     Plots the total average errors with standard deviation error bars.
 
@@ -47,11 +54,18 @@ def plot_total_average_errors(total_average_errors, total_std_errors, episode_nu
 
     plt.figure(figsize=(7, 4))
     plt.rcParams.update({'font.size': 10})
-    plt.errorbar(episode_number, total_average_errors, yerr=total_std_errors, capsize=5, marker='o', linestyle='--')
+
+    # Clip the lower bound of the error bars at zero
+    lower_bound = np.clip(total_average_errors - total_std_errors, 0, None)
+    upper_bound = total_average_errors + total_std_errors
+
+    error_bars = [total_average_errors - lower_bound, upper_bound - total_average_errors]
+
+    plt.errorbar(episode_number, total_average_errors, yerr=error_bars, capsize=5, marker='o', linestyle='--')
 
     # Adding plot details
-    plt.xlabel("Episode Number")
-    plt.ylabel("Total Error")
+    plt.xlabel("Episode number")
+    plt.ylabel("Average total error")
     plt.grid(True)
     plt.show()
 
@@ -81,14 +95,14 @@ def plot_average_controls_by_input(average_controls, std_controls, episode_numbe
         plt.errorbar(episode_number, avg, yerr=std, label=label, capsize=5, marker='o', linestyle='--')
 
     # Adding plot details
-    plt.xlabel("Episode Number")
-    plt.ylabel("Control")
+    plt.xlabel("Episode number")
+    plt.ylabel("Total control effort")
     plt.legend()
     plt.grid(True)
     plt.show()
 
 
-def plot_total_average_control(total_average_control, total_std_control, episode_number):
+def plot_total_average_control(total_average_control, total_std_control, episode_number, control_labels=None):
     """
     Plots the total average control with standard deviation error bars.
 
@@ -102,7 +116,7 @@ def plot_total_average_control(total_average_control, total_std_control, episode
     plt.errorbar(episode_number, total_average_control, yerr=total_std_control, capsize=5, marker='o', linestyle='--')
 
     # Adding plot details
-    plt.xlabel("Episode Number")
-    plt.ylabel("Total Control")
+    plt.xlabel("Episode number")
+    plt.ylabel("Total control effort")
     plt.grid(True)
     plt.show()

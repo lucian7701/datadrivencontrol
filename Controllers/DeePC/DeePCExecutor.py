@@ -3,6 +3,7 @@ from Models.deepc_system import Data
 from Controllers.DeePC.DeePC import DeePC
 import numpy as np
 from Analysis.state_control_reference import plot_results
+from Analysis.Analyser import Analyser
 
 
 class DeePCExecutor:
@@ -54,6 +55,7 @@ class DeePCExecutor:
         self.lam_g2 = lam_g2
         self.lam_y = lam_y
         self.y_ref = y_ref if y_ref is not None else np.ones((self.N, self.p))
+        self.y_ref_original = y_ref if y_ref is not None else np.ones((self.N, self.p))
         self.u_ref = u_ref if u_ref is not None else np.zeros((self.N, self.m))
         self.data_ini = data_ini if data_ini is not None else Data(u=np.zeros((int(T_ini), int(m))), y=np.ones((int(T_ini), int(p)))*0)
 
@@ -110,3 +112,18 @@ class DeePCExecutor:
         states, controls = data.y, data.u
         y_ref = self.sys.get_ref()
         plot_results(states, controls, self.dt, reference_trajectory=y_ref, T_ini=self.T_ini, state_labels=None, control_labels=None)
+
+    def run_eval(self, state_labels=None, control_labels=None, ref_labels=None, plot: bool = True):
+
+        data = self.sys.get_all_samples()
+        states, controls = data.y, data.u
+
+        analyser = Analyser(states=states, controls=controls, reference_trajectory=np.array([self.y_ref_original[0]]).reshape(1,-1))
+        if plot:
+            analyser.plot_state_control(self.dt, state_labels, control_labels, ref_labels)
+
+        print("Total absolute error:", analyser.total_absolute_error())
+        print("Total absolute control:", analyser.total_absolute_control())
+
+        print("Total absolute error by state:", analyser.total_absolute_error_by_state())
+        print("Total absolute control by input:", analyser.total_absolute_control_by_input())
