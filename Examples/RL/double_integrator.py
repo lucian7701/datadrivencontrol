@@ -119,10 +119,10 @@ DoubleIntegratorFullExample = RLExample(env=env_full_exp, model_name=model_name_
 
 # DoubleIntegratorFullExample.train_with_eval(load_checkpoint=load_checkpoint, ngames=ngames, max_steps_per_episode=max_steps_per_episode, sigma_noise=sigma_noise_exp, gamma=gamma, theta_noise=theta_noise_exp, total_simulation_time=total_simulation_time)
 
-# DoubleIntegratorFullExample.evaluate(total_simulation_time=total_simulation_time, state_labels=state_labels, control_labels=control_labels, ref_labels=ref_labels)
+DoubleIntegratorFullExample.evaluate(total_simulation_time=total_simulation_time, state_labels=state_labels, control_labels=control_labels, ref_labels=ref_labels)
 # DoubleIntegratorFullExample.plot_rewards()
 # DoubleIntegratorFullExample.plot_average_stats(state_labels=state_labels, control_labels=control_labels)
-DoubleIntegratorFullExample.plot_data_usage()
+# DoubleIntegratorFullExample.plot_data_usage()
 
 ##############################################################################
 ##############################################################################

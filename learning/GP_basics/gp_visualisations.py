@@ -61,8 +61,8 @@ def sampling_from_a_prior(kernel_func=default_squared_exponential):
     (without any observed data).
     """
 
-    nb_of_samples = 41
-    number_of_functions = 10
+    nb_of_samples = 40
+    number_of_functions = 5
     # Independent variable samples
     X = np.expand_dims(np.linspace(-4, 4, nb_of_samples), 1)
     Sigma = kernel_func(X, X)
@@ -74,7 +74,7 @@ def sampling_from_a_prior(kernel_func=default_squared_exponential):
         X2=X,
         x_label='X',
         y_label='Y',
-        title='10 Sampled Functions',
+        # title='5 Sampled Functions',
         xlim=(-4, 4),
         ylim=(-3, 3)
     )
@@ -82,7 +82,7 @@ def sampling_from_a_prior(kernel_func=default_squared_exponential):
     plotter.show_plot()
 
 
-def visualise_sin_posterior(kernel_func=default_squared_exponential):
+def visualise_sin_posterior(kernel_func=report_squared_exponential):
     f_sin = lambda x: (np.sin(x)).flatten()
 
     n1 = 8
@@ -91,7 +91,7 @@ def visualise_sin_posterior(kernel_func=default_squared_exponential):
     domain = (-6, 6)
 
     X1 = np.random.uniform(domain[0], domain[1], size=(n1, 1))
-    y1 = f_sin(X1)
+    y1 = f_sin(X1) + np.random.randn(n1) * 0.1
 
     # Predict points at uniform spacing to capture function
     X2 = np.linspace(-15, 15, n2).reshape(-1, 1)
@@ -114,7 +114,8 @@ def visualise_sin_posterior(kernel_func=default_squared_exponential):
         ys=y2,
         xlim=(-6,6),
         ylim=(-3, 3),
-        title=post_title
+        # title=post_title
+        func_label='sin(x)'
     )
     distribution_plot.plot_distribution()
     # distribution_plot.plot_sampled_functions()
@@ -125,7 +126,7 @@ def visualise_sin_posterior(kernel_func=default_squared_exponential):
     sample_plot = GaussianProcessSinglePlotter(
         ys=y2,
         X2=X2,
-        title=sample_title,
+        # title=sample_title,
         xlim=(-6, 6),
         ylim=(-3, 3)
     )

@@ -83,8 +83,8 @@ FourTankExample = RLExample(env=env, model_name=model_name_100, n_actions=n_acti
 
 # FourTankExample.train_with_eval(load_checkpoint=load_checkpoint, ngames=ngames, max_steps_per_episode=max_steps_per_episode, sigma_noise=sigma_noise, gamma=gamma, theta_noise=theta_noise, total_simulation_time=total_simulation_time)
 
-# FourTankExample.evaluate(total_simulation_time=total_simulation_time, state_labels=state_labels, control_labels=control_labels, ref_labels=ref_labels)
+FourTankExample.evaluate(total_simulation_time=total_simulation_time, state_labels=state_labels, control_labels=control_labels, ref_labels=ref_labels)
 # FourTankExample.plot_rewards()
 # FourTankExample.plot_average_stats(state_labels=state_labels, control_labels=control_labels)
-FourTankExample.plot_data_usage()
+# FourTankExample.plot_data_usage()
 

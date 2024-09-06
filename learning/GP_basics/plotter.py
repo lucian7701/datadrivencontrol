@@ -15,6 +15,7 @@ class GaussianProcessSinglePlotter:
         xlim (tuple): Tuple specifying the x-axis limits (min, max).
         ylim (tuple): Tuple specifying the y-axis limits (min, max).
     """
+    
 
     def __init__(
             self,
@@ -46,7 +47,9 @@ class GaussianProcessSinglePlotter:
         self.ylim = ylim
         self.func_label = func_label
 
+       
         self.figure, self.ax = plt.subplots(figsize=(6, 4))
+        self.ax.grid(True)
         self._configure_plot()
 
     def _configure_plot(self):
@@ -54,7 +57,7 @@ class GaussianProcessSinglePlotter:
         # Set labels and title
         self.ax.set_xlabel(self.x_label if self.x_label else 'x', fontsize=13)
         self.ax.set_ylabel(self.y_label if self.y_label else 'y', fontsize=13)
-        self.ax.set_title(self.title if self.title else 'Plot', fontsize=15)
+        self.ax.set_title(self.title, fontsize=15)
 
         # Set x and y limits if provided
         if self.xlim is not None:
@@ -95,4 +98,6 @@ class GaussianProcessSinglePlotter:
             self.ax.plot(self.X2, self.ys[i], linestyle='-', label=f'Sample {i + 1}')
 
     def show_plot(self):
+        
         plt.show()
+

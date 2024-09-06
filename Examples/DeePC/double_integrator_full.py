@@ -5,10 +5,10 @@ from Controllers.DeePC.DeePCExecutor import DeePCExecutor
 import scipy.signal as scipysig
 
 # Define system parameters
-T = 70  # Length of trajectory
+T = 69  # Length of trajectory
 N = 30  # Prediction horizon
 m = 1   # Input dimension
-p = 1   # Output dimension
+p = 2   # Output dimension
 T_ini = 2 # Length of initial data
 total_simulation_time = 20 
 dt = 0.1  # Sampling time
@@ -19,16 +19,19 @@ A = np.array([[0, 1],
               [0, 0]])
 B = np.array([[0],
               [1]])
-C = np.array([[1, 0]])
-D = np.array([[0]])
+C = np.array([[1, 0], [0, 1]])
+D = np.array([[0], [0]])
 
 # Define constraints
-y_max = np.array([10])  # Constraints for [position, velocity]
-y_min = np.array([-10])
+y_max = np.array([10, 10])  # Constraints for [position, velocity]
+y_min = np.array([-10, -10])
 u_max = np.array([2])  # Constraints for [acceleration]
 u_min = np.array([-2])
 
-y_ref = np.ones((N, p))*7
+y_ref = np.array([7, 0])
+
+# Repeat x_ref over the entire control horizon
+y_ref = np.tile(y_ref, (N, 1))
 
 
 
@@ -42,7 +45,7 @@ sys = LinearSystem(scipysystem, x0, m)
 
 
 # Define cost matrices
-Q = np.diag([10])
+Q = np.diag([10, 1])
 R = np.diag([0.1])
 
 
@@ -61,11 +64,11 @@ executor = DeePCExecutor(T=T, N=N, m=m, p=p, u_min=u_min, u_max=u_max,
 executor.run()
 
 
-state_labels = ['Position (m)']
+state_labels = ['Position (m)', 'Velocity (m/s)']
 control_labels = ['Force (N)']
-ref_labels = ['Position ref (m)']
+ref_labels = ['Position ref (m)', 'Velocity ref (m/s)']
 
-# # Plot the results
+# Plot the results
 # executor.plot()
 
 executor.run_eval(state_labels=state_labels, control_labels=control_labels, ref_labels=ref_labels)

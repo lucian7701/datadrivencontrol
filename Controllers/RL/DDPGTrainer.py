@@ -1,7 +1,6 @@
 import numpy as np
 from Controllers.RL.ddpg_torch import Agent
 from Controllers.RL.DDPGEvaluator import DDPGEvaluator
-import json
 
 
 class DDPGTrainer:

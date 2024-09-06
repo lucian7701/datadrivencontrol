@@ -1,8 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-@author: Helge-André Langåker
-"""
-# from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
@@ -53,7 +48,7 @@ xlb = [-10., -10.]
 xub = [10., 10.]
 
 """ Initial state, input and set point  """
-x_sp = np.array([7.0, 7.0]) # this is the reference value
+x_sp = np.array([7.0, 0]) # this is the reference value
 x0 = np.array([0.0, 0.0])
 u0 = np.array([0.0])
 

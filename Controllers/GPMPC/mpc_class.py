@@ -926,6 +926,11 @@ class MPC:
         numrows = int(np.ceil(Nx / numcols))
 
         fig_u = plt.figure(figsize=(9.0, 6.0))
+        
+
+
+
+
         for i in range(Nu):
             ax = fig_u.add_subplot(Nu, 1, i + 1)
             ax.step(t, u[:, i] , 'k', where='post')

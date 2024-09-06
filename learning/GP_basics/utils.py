@@ -3,7 +3,7 @@ import scipy as sp
 from kernels import ExponentiatedQuadraticKernel
 
 default_squared_exponential = ExponentiatedQuadraticKernel()
-report_squared_exponential = ExponentiatedQuadraticKernel(sigma_f=0.5)
+report_squared_exponential = ExponentiatedQuadraticKernel(sigma_f=0.5, sigma_n=0.1)
 
 
 def GP(X1, y1, X2, kernel_func):

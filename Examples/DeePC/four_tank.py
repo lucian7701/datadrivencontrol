@@ -4,11 +4,11 @@ from Controllers.DeePC.DeePCExecutor import DeePCExecutor
 
 
 # Define system parameters
-T = 300  # Length of trajectory
+T = 200  # Length of trajectory
 N = 30  # Number of time steps
 m = 2   # Input dimension
 p = 4   # Output dimension
-T_ini = 4 # Length of initial data
+T_ini = 1 # Length of initial data
 total_simulation_time = 240
 dt = 3 # Sampling time
 n_steps = int(total_simulation_time // dt)
@@ -52,8 +52,10 @@ sys = NonLinearSystem(x0, ode=ode, dt=dt, m=2)
 """ Limits in the training data """
 ulb = np.array([10, 10])
 uub = np.array([60., 60.])
-xlb = np.array([7.5, 7.5, 3.5, 4.5])
-xub = np.array([22., 22., 22., 22.])
+xlb = np.array([7.5, 7.5, 7.5, 18])
+xub = np.array([15., 15., 15., 24.])
+
+
 
 Q = np.diag([20, 20, 10, 10])   # State penalty
 R = np.diag([0.001, 0.001])   # Input penalty
@@ -71,6 +73,9 @@ sys.reset(x0=x0)
 data_ini = sys.apply_input(u = np.tile(np.array([45, 45]), (T_ini, 1)))
 sys.reset(x0=x0)
 
+xlb = np.array([7.5, 7.5, 3.5, 4.5])
+xub = np.array([28., 28., 28., 28.])
+
 executor = DeePCExecutor(T=T, N=N, m=m, p=p, u_min=ulb, u_max=uub,
                          y_min=xlb, y_max=xub, T_ini=T_ini,
                          total_simulation_time=total_simulation_time,
@@ -81,10 +86,10 @@ executor = DeePCExecutor(T=T, N=N, m=m, p=p, u_min=ulb, u_max=uub,
 
 executor.run()
 
-executor.plot()
+# executor.plot()
 
 state_labels = ['Tank 1 (m)', 'Tank 2 (m)', 'Tank 3 (m)', 'Tank 4 (m)']
 control_labels = ['Pump 1 (m^3/s)', 'Pump 2 (m^3/s)']
 ref_labels = ['Tank 1 ref (m)', 'Tank 2 ref (m)', 'Tank 3 ref (m)', 'Tank 4 ref (m)']
 
-executor.run_eval(state_labels=state_labels, control_labels=control_labels, ref_labels=ref_labels, plot=True)
+executor.run_eval(state_labels=state_labels, control_labels=control_labels, ref_labels=ref_labels, plot=True, filename="four_tank")

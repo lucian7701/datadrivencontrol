@@ -7,8 +7,10 @@ def plot_state_control_util(states, controls, dt, state_labels, control_labels, 
     
     time = np.linspace(0, len(states)*dt, len(states))
     
-    plt.figure(figsize=(7, 6))
+    plt.figure(figsize=(7, 5))
     plt.rcParams.update({'font.size': 10})
+    plt.tight_layout()
+
     
 
     ##########################################################################
@@ -28,7 +30,7 @@ def plot_state_control_util(states, controls, dt, state_labels, control_labels, 
 
 
     plt.ylabel('State')
-    plt.legend()
+    plt.legend(loc='upper right')
     plt.grid()
 
 

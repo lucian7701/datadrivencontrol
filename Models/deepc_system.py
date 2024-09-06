@@ -117,7 +117,6 @@ class SystemBase(ABC):
         while u_sequence is None or u_sequence.shape[0] < T:
             # Reset the state and sequences if necessary
             if u_sequence is None or abs(self.x0[2]) > 0.9:
-                # attempt moasic hankel
                 print("reset!")
                 self.x0 = self.original_x0
                 u_sequence = None
