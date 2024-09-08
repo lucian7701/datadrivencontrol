@@ -3,11 +3,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-def plot_state_control_util(states, controls, dt, state_labels, control_labels, reference_trajectory=None, T_ini=0, ref_labels=None):
+def plot_state_control_util(states, controls, dt, state_labels, control_labels, reference_trajectory=None, T_ini=0, ref_labels=None, first_prediction_horizon_mean=None, first_prediction_horizon_std=None, plot_first_prediction_horizon=True):
     
     time = np.linspace(0, len(states)*dt, len(states))
     
-    plt.figure(figsize=(7, 5))
+    plt.figure(figsize=(7, 4))
     plt.rcParams.update({'font.size': 10})
     plt.tight_layout()
 
@@ -22,9 +22,20 @@ def plot_state_control_util(states, controls, dt, state_labels, control_labels, 
     for i in range(states.shape[1]):
         plt.plot(time, states[:,i], label=state_labels[i])
 
+    if first_prediction_horizon_mean is not None and first_prediction_horizon_std is not None and plot_first_prediction_horizon:
+        num_states = first_prediction_horizon_mean.shape[1]  # Number of states
+        # state_labels = [f'State {i+1}' for i in range(num_states)]  # Create labels for states
+
+        for i in range(num_states):
+            plt.errorbar(time[:30], first_prediction_horizon_mean[:, i], 
+                        yerr=2 * np.sqrt(first_prediction_horizon_std[:, i]),  
+                        fmt='.', capsize=3, capthick=1)
 
     if ref_labels is None:
         ref_labels = ['Reference {}'.format(i+1) for i in range(reference_trajectory.shape[1])]
+    
+    if ref_labels == "None":
+        ref_labels = None
     if reference_trajectory is not None:
         plt.plot(time[T_ini:], [reference_trajectory[0]] * len(time[T_ini:]), label=ref_labels, linestyle='--')
 

@@ -79,7 +79,7 @@ xub = np.array([28., 28., 28., 28.])
 executor = DeePCExecutor(T=T, N=N, m=m, p=p, u_min=ulb, u_max=uub,
                          y_min=xlb, y_max=xub, T_ini=T_ini,
                          total_simulation_time=total_simulation_time,
-                         dt=dt, sys=sys, Q=Q, R=R, lam_g1=10, lam_g2=10, lam_y=1,
+                         dt=dt, sys=sys, Q=Q, R=R, lam_g1=10, lam_g2=10, lam_y=100000,
                          y_ref=x_ref, data_ini=data_ini,
                          training_data=training_data
                          )

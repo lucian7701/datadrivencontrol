@@ -8,7 +8,7 @@ from kernels import ExponentiatedQuadraticKernel
 # sampling_from_a_prior()
 
 # Visualise the posterior
-visualise_sin_posterior()
+# visualise_sin_posterior()
 
 
 # Squared exponential with signal variance = 0.5
@@ -17,7 +17,10 @@ visualise_sin_posterior()
 # Visualise the posterior
 
 # Adjust parameters as necessary for graphs
-test_kernel = ExponentiatedQuadraticKernel(sigma_f=0.05, length_scale=1, sigma_n=0.0)
+test_kernel = ExponentiatedQuadraticKernel(sigma_f=1, length_scale=3, sigma_n=0)
+
+visualise_sin_posterior(test_kernel)
+
 
 # if __name__ == '__main__':
 #     visualise_sin_posterior(test_kernel)

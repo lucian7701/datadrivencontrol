@@ -33,10 +33,10 @@ class RLExample:
         ddpg_controller.run(eval=True, total_simulation_time=total_simulation_time)
 
 
-    def evaluate(self, total_simulation_time=20, state_labels=None, control_labels=None, ref_labels=None):
+    def evaluate(self, total_simulation_time=20, state_labels=None, control_labels=None, ref_labels=None, filename=None):
         ddpg_evaluator = DDPGEvaluator(self.env, model_name=self.model_name, input_dims=self.input_dims, n_actions=self.n_actions, dt=self.dt, total_simulation_time=total_simulation_time, sigmoid=self.sigmoid, action_bound=self.action_bound, problem=self.problem)
         
-        ddpg_evaluator.run_eval(state_labels, control_labels, ref_labels)
+        ddpg_evaluator.run_eval(state_labels, control_labels, ref_labels, filename=filename)
 
     def plot_rewards(self):
         rewards_file_path = os.path.join(os.path.dirname(__file__), f'episode_rewards/{self.problem}_{self.model_name}_e_r.npy')

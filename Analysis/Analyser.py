@@ -10,8 +10,8 @@ class Analyser:
         self.T_ini = T_ini
 
     
-    def plot_state_control(self, dt, state_labels, control_labels, ref_labels):
-        plot_state_control_util(self.states, self.controls, dt, state_labels, control_labels, reference_trajectory=self.reference_trajectory, T_ini=self.T_ini, ref_labels=ref_labels)
+    def plot_state_control(self, dt, state_labels, control_labels, ref_labels=None, first_prediction_horizon_mean=None, first_prediction_horizon_std=None, plot_first_prediction_horizon=True):
+        plot_state_control_util(self.states, self.controls, dt, state_labels, control_labels, reference_trajectory=self.reference_trajectory, T_ini=self.T_ini, ref_labels=ref_labels, first_prediction_horizon_mean=first_prediction_horizon_mean, first_prediction_horizon_std=first_prediction_horizon_std, plot_first_prediction_horizon=plot_first_prediction_horizon)
 
 
     def absolute_error(self) -> np.array: 

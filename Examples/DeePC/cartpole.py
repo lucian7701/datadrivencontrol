@@ -4,11 +4,11 @@ from Controllers.DeePC.DeePCExecutor import DeePCExecutor
 import math
 
 # Define system parameters
-T = 300  # Length of trajectory
+T = 200  # Length of trajectory
 N = 30  # Number of time steps
 m = 1   # Input dimension
 p = 4   # Output dimension
-T_ini= 4 # Length of initial data
+T_ini= 1 # Length of initial data
 total_simulation_time = 10
 dt = 0.02 # Sampling time
 n_steps = int(total_simulation_time // dt)
@@ -86,11 +86,17 @@ sys.reset(x0=x0)
 executor = DeePCExecutor(T=T, N=N, m=m, p=p, u_min=ulb, u_max=uub,
                          y_min=ylb, y_max=yub, T_ini=T_ini,
                          total_simulation_time=total_simulation_time,
-                         dt=dt, sys=sys, Q=Q, R=R, lam_g2=300, lam_g1=300, lam_y=100000,
+                         dt=dt, sys=sys, Q=Q, R=R, lam_g2=10, lam_g1=10, lam_y=100000,
                          y_ref=y_ref, data_ini=data_ini,
                          training_data=training_data
                          )
 
 executor.run()
 
-executor.plot()
+# executor.plot()
+
+state_labels = ['Position (m)', 'Velocity (m/s)', 'Angle (rads)', 'Angular velocity (rads/s)']
+control_labels = ['Force (N)']
+# ref_labels = ['Position ref (m)', 'Velocity ref (m/s)', 'Angle ref (rads)', 'Angular velocity ref (rads/s)']
+
+executor.run_eval(state_labels=state_labels, control_labels=control_labels, ref_labels="None", plot=True, filename="inverted_pendulum")

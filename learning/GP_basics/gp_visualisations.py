@@ -91,7 +91,7 @@ def visualise_sin_posterior(kernel_func=report_squared_exponential):
     domain = (-6, 6)
 
     X1 = np.random.uniform(domain[0], domain[1], size=(n1, 1))
-    y1 = f_sin(X1) + np.random.randn(n1) * 0.1
+    y1 = f_sin(X1)
 
     # Predict points at uniform spacing to capture function
     X2 = np.linspace(-15, 15, n2).reshape(-1, 1)

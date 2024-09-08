@@ -106,5 +106,10 @@ mpc = MPC(horizon=30*dt, gp=gp, model=model,
 """ Solve and plot the MPC solution, simulating 80 iterations """
 x, u = mpc.solve(x0, u0=u0, sim_time=80*dt, x_sp=x_sp, debug=False, noise=True)
 
+# mpc.plot(xnames=['Tank 1 [cm]', 'Tank 2 [cm]','Tank 3 [cm]','Tank 4 [cm]'],
+#         unames=['Pump 1 [ml/s]', 'Pump 2 [ml/s]'])
+
+y_ref = np.array([14.0, 14.0, 14.2, 21.3])
+
 mpc.plot(xnames=['Tank 1 [cm]', 'Tank 2 [cm]','Tank 3 [cm]','Tank 4 [cm]'],
-        unames=['Pump 1 [ml/s]', 'Pump 2 [ml/s]'])
+        unames=['Pump 1 [ml/s]', 'Pump 2 [ml/s]'], filename='four_tank', y_ref=y_ref)

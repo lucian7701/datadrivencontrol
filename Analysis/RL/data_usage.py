@@ -8,6 +8,7 @@ def plot_data_usage(data, num_controls=1, num_states=1):
 
     cumulative_data_points = np.cumsum(data_points_per_episode)
 
+    print(cumulative_data_points[-1] / (num_states + num_controls))
 
     plt.figure(figsize=(7, 4))
     plt.rcParams.update({'font.size': 10})

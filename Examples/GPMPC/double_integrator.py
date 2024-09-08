@@ -27,13 +27,13 @@ uub = [2.]
 xlb = [-10., -10.]
 xub = [10., 10.]
 
-N = 60       # Number of training data
-N_test = 100    # Number of test data
+N = 40       # Number of training data
+# N_test = 100    # Number of test data
 
 """ Create Simulation Model """
 model = Model(Nx=Nx, Nu=Nu, ode=ode, dt=dt, R=R, clip_negative=False)
 X, Y = model.generate_training_data(N, uub, ulb, xub, xlb, noise=True)
-X_test, Y_test = model.generate_training_data(N_test, uub, ulb, xub, xlb, noise=True)
+# X_test, Y_test = model.generate_training_data(N_test, uub, ulb, xub, xlb, noise=True)
 
 """ Create GP model and optimize hyper-parameters on training data """
 gp = GP(X, Y, mean_func='zero', normalize=True, xlb=xlb, xub=xub, ulb=ulb, uub=uub)
@@ -75,5 +75,10 @@ mpc = MPC(horizon=30*dt, gp=gp, model=model,
 """ Solve and plot the MPC solution, simulating 80 iterations """
 x, u = mpc.solve(x0, u0=u0, sim_time=200*dt, x_sp=x_sp, debug=False, noise=True)
 
+y_ref = np.array([7.0, 0])
+
 mpc.plot(xnames=['Position', 'Velocity'],
-         unames=['Force'])
+         unames=['Force'], filename='double_integrator', y_ref=y_ref)
+
+# mpc.plot(xnames=['Position', 'Velocity'],
+#          unames=['Force'])

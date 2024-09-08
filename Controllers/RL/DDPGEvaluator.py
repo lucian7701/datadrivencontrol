@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from Controllers.RL.ddpg_torch import Agent
 from Analysis.state_control_reference import plot_results
 from Analysis.Analyser import Analyser
+import os
 
 class DDPGEvaluator:
 
@@ -21,7 +22,7 @@ class DDPGEvaluator:
         self.u = None
         self.y = None
 
-    def run_eval(self, state_labels=None, control_labels=None, ref_labels=None, plot: bool = True):
+    def run_eval(self, state_labels=None, control_labels=None, ref_labels=None, plot: bool = True, filename: str = None):
         observation, _ = self.env.reset()
         done = False
 
@@ -52,9 +53,36 @@ class DDPGEvaluator:
         
         total_absolute_error_by_state = analyser.total_absolute_error_by_state()
         total_absolute_control_by_input = analyser.total_absolute_control_by_input()
-     
+        total_absolute_error = analyser.total_absolute_error()
+        total_absolute_control = analyser.total_absolute_control()
 
-        print("Total absolute error:", analyser.total_absolute_error())
+        print("Total absolute error by state:", total_absolute_error_by_state)
+        print("Total absolute control by input:", total_absolute_control_by_input)
+        print("Total absolute error:", total_absolute_error)
+        print("Total absolute control:", total_absolute_control)
+
+        if filename is not None:
+            file_path = os.path.join(os.getcwd(), f'performance/{filename}.npz')
+            try:
+                previous_data = np.load(file_path)
+                errors = list(previous_data['errors'])
+                controls = list(previous_data['controls'])
+                errors_by_state = list(previous_data['errors_by_state'])
+                controls_by_input = list(previous_data['controls_by_input'])
+            except FileNotFoundError:
+                # Initialize lists if file doesn't exist
+                errors = []
+                controls = []
+                errors_by_state = []
+                controls_by_input = []
+
+            errors.append(total_absolute_error)
+            controls.append(total_absolute_control)
+            errors_by_state.append(total_absolute_error_by_state)
+            controls_by_input.append(total_absolute_control_by_input)
+
+            np.savez(file_path, errors=errors, controls=controls, errors_by_state=errors_by_state, controls_by_input=controls_by_input)
+
         
         if plot:
             analyser.plot_state_control(self.dt, state_labels, control_labels, ref_labels)

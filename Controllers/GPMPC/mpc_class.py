@@ -14,6 +14,10 @@ import casadi as ca
 import casadi.tools as ctools
 from scipy.stats import norm
 import scipy.linalg
+import os
+
+from Analysis.Analyser import Analyser
+
 
 
 class MPC:
@@ -874,7 +878,7 @@ class MPC:
 
 
     def plot(self, title=None,
-             xnames=None, unames=None, time_unit = 's', numcols=2):
+             xnames=None, unames=None, time_unit = 's', numcols=2, filename=None, y_ref=None):
         """ Plot MPC
 
         # Optional Arguments:
@@ -899,9 +903,50 @@ class MPC:
         Nu = self.__Nu
         Nt_sim, Nx = x.shape
 
+        
+
         # First prediction horizon
         x_pred = self.__mean_prediction
         var_pred = self.__var_prediction
+
+
+
+
+        # save it to np files. 
+        if filename is not None:
+            file_path = os.path.join(os.getcwd(), f'performance/{filename}.npz')
+
+            np.savez(file_path, x, u, x_pred, var_pred)
+
+        if filename is not None:
+            file_path_total = os.path.join(os.getcwd(), f'performance/{filename}_total.npz')
+            try:
+                previous_data = np.load(file_path_total)
+                errors = list(previous_data['errors'])
+                controls = list(previous_data['controls'])
+                errors_by_state = list(previous_data['errors_by_state'])
+                controls_by_input = list(previous_data['controls_by_input'])
+            except FileNotFoundError:
+                # Initialize lists if file doesn't exist
+                errors = []
+                controls = []
+                errors_by_state = []
+                controls_by_input = []
+
+            analyser = Analyser(states=x[:-1], controls=u, reference_trajectory=y_ref.reshape(1,-1))
+
+            total_absolute_error = analyser.total_absolute_error()
+            total_absolute_control = analyser.total_absolute_control()
+            total_absolute_error_by_state = analyser.total_absolute_error_by_state()
+            total_absolute_control_by_input = analyser.total_absolute_control_by_input()
+
+            errors.append(total_absolute_error)
+            controls.append(total_absolute_control)
+            errors_by_state.append(total_absolute_error_by_state)
+            controls_by_input.append(total_absolute_control_by_input)
+
+            np.savez(file_path_total, errors=errors, controls=controls, errors_by_state=errors_by_state, controls_by_input=controls_by_input)
+
 
         # One step prediction
         var = np.zeros((Nt_sim, Nx))
@@ -926,7 +971,7 @@ class MPC:
         numrows = int(np.ceil(Nx / numcols))
 
         fig_u = plt.figure(figsize=(9.0, 6.0))
-        
+
 
 
 
