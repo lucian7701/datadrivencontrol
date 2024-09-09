@@ -1,3 +1,8 @@
+"""
+For reference this code is based on the following repository:
+https://github.com/philtabor/Actor-Critic-Methods-Paper-To-Code/tree/master/DDPG
+"""
+
 import numpy as np
 import matplotlib.pyplot as plt
 from Controllers.RL.ddpg_torch import Agent

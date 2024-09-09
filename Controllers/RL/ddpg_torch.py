@@ -1,4 +1,7 @@
-"""https://github.com/philtabor/Actor-Critic-Methods-Paper-To-Code/tree/master/DDPG"""
+"""
+For reference this code is based on the following repository:
+https://github.com/philtabor/Actor-Critic-Methods-Paper-To-Code/tree/master/DDPG
+"""
 
 import os
 import numpy as np
