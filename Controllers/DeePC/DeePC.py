@@ -1,4 +1,7 @@
-""" https://github.com/michael-cummins/DeePC-HUNT/blob/main/deepc_hunt/controllers.py """
+"""
+For reference the frame work of this implementation is taken from the following repository:
+https://github.com/michael-cummins/DeePC-HUNT/blob/main/deepc_hunt/controllers.py 
+"""
 
 import numpy as np
 import cvxpy as cp

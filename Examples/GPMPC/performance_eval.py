@@ -61,29 +61,29 @@ from Analysis.Analyser import Analyser
 
 #############################################################################
 
-# filename = 'four_tank'
+filename = 'four_tank'
 
-# file_path = os.path.join(os.getcwd(), f'performance/{filename}.npz')
+file_path = os.path.join(os.getcwd(), f'performance/{filename}.npz')
 
-# data = np.load(file_path)
+data = np.load(file_path)
 
-# states = data['arr_0']
-# states = states[:-1]
-# control = data['arr_1']
+states = data['arr_0']
+states = states[:-1]
+control = data['arr_1']
 
-# first_prediction_horizon_mean = data['arr_2']
-# first_prediction_horizon_std = data['arr_3']
-# first_prediction_horizon_mean = first_prediction_horizon_mean[:-1]
-# first_prediction_horizon_std = first_prediction_horizon_std[:-1]
+first_prediction_horizon_mean = data['arr_2']
+first_prediction_horizon_std = data['arr_3']
+first_prediction_horizon_mean = first_prediction_horizon_mean[:-1]
+first_prediction_horizon_std = first_prediction_horizon_std[:-1]
 
 
-# y_ref = np.array([14, 14, 14.2, 21.3])
+y_ref = np.array([14, 14, 14.2, 21.3])
 
-# analyser = Analyser(states=states, controls=control, reference_trajectory=y_ref.reshape(1,-1))
+analyser = Analyser(states=states, controls=control, reference_trajectory=y_ref.reshape(1,-1))
 
-# analyser.plot_state_control(0.1, ['Tank 1 (m)', 'Tank 2 (m)', 'Tank 3 (m)', 'Tank 4 (m)'], ['Pump 1 (m^3/s)', 'Pump 2 (m^3/s)'], ref_labels=['Tank 1 ref (m)', 'Tank 2 ref (m)', 'Tank 3 ref (m)', 'Tank 4 ref (m)'], first_prediction_horizon_mean=first_prediction_horizon_mean, first_prediction_horizon_std=first_prediction_horizon_std)
+analyser.plot_state_control(0.1, ['Tank 1 (m)', 'Tank 2 (m)', 'Tank 3 (m)', 'Tank 4 (m)'], ['Pump 1 (m^3/s)', 'Pump 2 (m^3/s)'], ref_labels=['Tank 1 ref (m)', 'Tank 2 ref (m)', 'Tank 3 ref (m)', 'Tank 4 ref (m)'], first_prediction_horizon_mean=first_prediction_horizon_mean, first_prediction_horizon_std=first_prediction_horizon_std)
 
-# print(analyser.total_absolute_error_by_state())
+print(analyser.total_absolute_error_by_state())
 
 
 #############################################################################
@@ -119,29 +119,29 @@ from Analysis.Analyser import Analyser
 
 #############################################################################
 
-filename = 'inverted_pendulum'
+# filename = 'inverted_pendulum'
 
-file_path = os.path.join(os.getcwd(), f'performance/{filename}.npz')
+# file_path = os.path.join(os.getcwd(), f'performance/{filename}.npz')
 
-data = np.load(file_path)
+# data = np.load(file_path)
 
-states = data['arr_0']
-states = states[:-1]
-control = data['arr_1']
+# states = data['arr_0']
+# states = states[:-1]
+# control = data['arr_1']
 
-first_prediction_horizon_mean = data['arr_2']
-first_prediction_horizon_std = data['arr_3']
-first_prediction_horizon_mean = first_prediction_horizon_mean[:-1]
-first_prediction_horizon_std = first_prediction_horizon_std[:-1]
+# first_prediction_horizon_mean = data['arr_2']
+# first_prediction_horizon_std = data['arr_3']
+# first_prediction_horizon_mean = first_prediction_horizon_mean[:-1]
+# first_prediction_horizon_std = first_prediction_horizon_std[:-1]
 
 
-y_ref = np.array([0, 0, 0, 0])
+# y_ref = np.array([0, 0, 0, 0])
 
-analyser = Analyser(states=states, controls=control, reference_trajectory=y_ref.reshape(1,-1))
+# analyser = Analyser(states=states, controls=control, reference_trajectory=y_ref.reshape(1,-1))
 
-state_labels = ['Position (m)', 'Velocity (m/s)', 'Angle (rads)', 'Angular velocity (rads/s)']
-control_labels = ['Force (N)']
+# state_labels = ['Position (m)', 'Velocity (m/s)', 'Angle (rads)', 'Angular velocity (rads/s)']
+# control_labels = ['Force (N)']
 
-analyser.plot_state_control(0.02, state_labels, control_labels, ref_labels="None", first_prediction_horizon_mean=first_prediction_horizon_mean, first_prediction_horizon_std=first_prediction_horizon_std, plot_first_prediction_horizon=True)
+# analyser.plot_state_control(0.02, state_labels, control_labels, ref_labels="None", first_prediction_horizon_mean=first_prediction_horizon_mean, first_prediction_horizon_std=first_prediction_horizon_std, plot_first_prediction_horizon=True)
 
-print(analyser.total_absolute_error_by_state())
+# print(analyser.total_absolute_error_by_state())
